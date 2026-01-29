@@ -9,7 +9,6 @@
         const urlParams = new URLSearchParams(window.location.search);
         const currentAppId = urlParams.get('id');
         if (currentAppId) {
-            // Inject the meta tag for iOS Smart Banner
             document.write('<meta name="apple-itunes-app" content="app-id=' + currentAppId + '">');
         }
     </script>
@@ -20,639 +19,476 @@
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
 
     <style>
-        /* --- VARIABLES --- */
         :root {
-            /* Colors matching the School MDM style */
-            --primary: #007AFF; /* Apple Blue */
-            --primary-dark: #0056b3;
-            --bg-light: #ffffff;
-            --bg-off-white: #f2f2f7;
-            --bg-dark-modal: #1c1c1e; /* Dark background for MDM view */
+            /* Apple Design System Colors */
+            --blue: #007AFF;
+            --blue-hover: #005ecb;
+            --bg-body: #F2F2F7;         /* Light Grey Background */
+            --bg-card: #FFFFFF;         /* White Cards */
+            --text-primary: #1C1C1E;    /* Almost Black */
+            --text-secondary: #8E8E93;  /* Grey Text */
+            --separator: #C6C6C8;       /* Border Color */
+            --danger: #FF3B30;          /* Red */
+            --success: #34C759;         /* Green */
             
-            /* Text Colors */
-            --text-main: #000000;
-            --text-secondary: #8e8e93;
-            --text-white: #ffffff;
-            
-            /* Borders */
-            --border: #c6c6c8;
-            --border-light: #e5e5ea;
-            
-            /* Status */
-            --danger: #ff3b30;
-            --success: #34c759;
-            --warning: #ffcc00;
+            /* MDM Theme Specifics */
+            --mdm-bg: #1e1e1e;          /* Dark background for desktop view */
+            --window-shadow: 0 20px 50px rgba(0,0,0,0.5);
         }
 
-        /* --- GLOBAL RESET --- */
-        * {
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-        }
-
+        /* RESET & BASE */
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
         body {
-            margin: 0;
-            padding: 0;
-            background-color: var(--bg-light);
-            color: var(--text-main);
-            height: 100vh; /* Full viewport height */
-            overflow: hidden; /* We scroll inside containers */
-            transition: background-color 0.4s ease;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0; padding: 0;
+            background-color: var(--bg-body);
+            color: var(--text-primary);
+            height: 100vh;
+            overflow: hidden; /* App-like feel */
+            transition: background 0.3s ease;
         }
 
-        /* Prevent text selection to feel more like an app */
-        .no-select {
-            user-select: none;
-            -webkit-user-select: none;
-        }
+        button { cursor: pointer; font-family: inherit; }
+        
+        /* SCROLLBARS */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #999; }
 
-        /* ============================================================
-           THEME 1: SCHOOL MDM (Desktop/iPad Window Look)
-           Active when body has class "theme-mdm"
-           ============================================================ */
+        /* ==========================================================
+           THEME: MDM (Desktop Window)
+           ========================================================== */
         body.theme-mdm {
-            background-color: #111; /* Dark background behind the window */
+            background-color: var(--mdm-bg);
             display: flex;
             align-items: center;
             justify-content: center;
         }
 
-        /* The white "Window" floating in the center */
         .mdm-window {
-            display: none; /* Hidden unless theme is active */
+            display: none; /* Hidden by default */
+            width: 95%; max-width: 1200px; height: 90vh;
             background: #fff;
-            width: 95%;
-            max-width: 1200px;
-            height: 90vh;
             border-radius: 12px;
-            box-shadow: 0 50px 100px -20px rgba(0,0,0,0.7);
+            box-shadow: var(--window-shadow);
             flex-direction: column;
             overflow: hidden;
             position: relative;
-            animation: popIn 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+            animation: fadeInScale 0.3s ease-out;
         }
-
         body.theme-mdm .mdm-window { display: flex; }
 
-        @keyframes popIn {
-            from { opacity: 0; transform: scale(0.95); }
-            to { opacity: 1; transform: scale(1); }
-        }
-
-        /* MDM Header Bar */
-        .mdm-header {
-            height: 64px;
-            border-bottom: 1px solid #e0e0e0;
+        /* MDM TAB BAR (Browser Style) */
+        .mdm-tab-bar {
+            height: 40px;
+            background: #f0f0f0;
+            border-bottom: 1px solid #d1d1d1;
             display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 24px;
-            background: #fff;
-            flex-shrink: 0;
-        }
-
-        .mdm-brand {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 22px;
-            font-weight: 500;
-            color: #333;
-        }
-
-        .mdm-toolbar {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-        }
-
-        /* MDM Search Bar */
-        .mdm-search-input {
-            background: #f1f1f1;
-            border: 1px solid transparent;
-            padding: 8px 12px;
-            border-radius: 8px;
-            font-size: 14px;
-            width: 240px;
-            transition: 0.2s;
-        }
-        .mdm-search-input:focus {
-            background: #fff;
-            border-color: var(--primary);
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(0,122,255,0.1);
-        }
-
-        /* MDM Buttons */
-        .mdm-btn {
-            border: 1px solid #d1d1d6;
-            background: #fff;
-            color: var(--primary);
-            padding: 7px 14px;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            transition: 0.1s;
-        }
-        .mdm-btn:hover { background: #f2f7ff; border-color: var(--primary); }
-        .mdm-btn:active { transform: scale(0.97); }
-
-        /* MDM Table Area */
-        .mdm-content {
-            flex-grow: 1;
-            overflow-y: auto;
-            background: #fff;
-        }
-
-        table.mdm-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        
-        thead.mdm-thead th {
-            text-align: left;
-            padding: 12px 24px;
-            background: #f9f9f9;
-            color: #888;
-            font-size: 12px;
-            font-weight: 600;
-            text-transform: uppercase;
-            border-bottom: 1px solid #e0e0e0;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-        }
-
-        tbody.mdm-tbody tr {
-            border-bottom: 1px solid #f0f0f0;
-            cursor: pointer;
-            transition: background 0.15s;
-        }
-        tbody.mdm-tbody tr:hover {
-            background: #f8f9fa;
-        }
-
-        tbody.mdm-tbody td {
-            padding: 14px 24px;
-            font-size: 14px;
-            color: #333;
-            vertical-align: middle;
-        }
-
-        /* Install Pill Button (MDM) */
-        .install-pill {
-            background: var(--primary);
-            color: white;
-            padding: 4px 12px;
-            border-radius: 12px;
-            font-size: 11px;
-            font-weight: 700;
-            text-transform: uppercase;
-            display: inline-block;
-        }
-
-        /* ============================================================
-           THEME 2: CLASSIC MOBILE (Standard App Store Look)
-           Active when class "theme-mdm" is REMOVED
-           ============================================================ */
-        .classic-ui {
-            display: block;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-        }
-        body.theme-mdm .classic-ui { display: none; }
-
-        .classic-header {
-            padding: 15px 20px;
-            border-bottom: 1px solid var(--border-light);
-            background: rgba(255,255,255,0.92);
-            backdrop-filter: blur(20px);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .classic-title {
-            font-size: 20px;
-            font-weight: 700;
-            letter-spacing: -0.5px;
-        }
-
-        .classic-list {
-            flex-grow: 1;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-        }
-
-        .classic-item {
-            display: flex;
-            align-items: center;
-            padding: 12px 20px;
-            border-bottom: 1px solid #efeff4;
-            cursor: pointer; /* Ensure pointer shows clickable */
-            background: white;
-        }
-        .classic-item:active { background: #e5e5e5; }
-
-        .classic-icon {
-            width: 60px;
-            height: 60px;
-            border-radius: 14px;
-            background-color: #eee;
-            background-size: cover;
-            background-position: center;
-            border: 1px solid rgba(0,0,0,0.1);
-            margin-right: 15px;
-        }
-
-        .classic-info { flex-grow: 1; }
-        .classic-name { font-size: 17px; font-weight: 500; margin-bottom: 4px; }
-        .classic-meta { font-size: 13px; color: #888; }
-
-        .classic-get-btn {
-            background: #f0f0f8;
-            color: var(--primary);
-            font-weight: 700;
-            font-size: 13px;
-            padding: 6px 20px;
-            border-radius: 18px;
-            border: none;
-            pointer-events: none; /* Let the parent div handle the click */
-        }
-
-        /* ============================================================
-           SHARED OVERLAYS (Detail, Settings, Admin)
-           These cover the screen when active
-           ============================================================ */
-        .overlay-view {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: #fff;
-            z-index: 2000;
-            display: none; /* Hidden by default */
-            flex-direction: column;
-            overflow-y: auto;
-            padding-bottom: 40px;
-            animation: slideUp 0.3s ease-out;
-        }
-        
-        /* If we are in MDM mode, constrain overlays to the window */
-        body.theme-mdm .overlay-view {
-            position: absolute;
-            top: 64px; /* Below header */
-            z-index: 50;
-        }
-
-        @keyframes slideUp {
-            from { transform: translateY(100%); }
-            to { transform: translateY(0); }
-        }
-
-        /* DETAIL VIEW SPECIFICS */
-        .detail-hero {
-            padding: 30px 20px 20px;
-            display: flex;
-            gap: 20px;
-        }
-        .detail-icon-large {
-            width: 110px; height: 110px;
-            border-radius: 24px;
-            background-color: #ddd;
-            background-size: cover;
-            background-position: center;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            flex-shrink: 0;
-        }
-        .detail-header-info {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-        .detail-title { font-size: 24px; font-weight: 700; line-height: 1.2; margin-bottom: 5px; }
-        .detail-subtitle { color: #888; font-size: 15px; margin-bottom: 15px; }
-        
-        .detail-action-btn {
-            background: var(--primary);
-            color: white;
-            font-weight: 700;
-            padding: 10px 30px;
-            border-radius: 20px;
-            text-decoration: none;
-            display: inline-block;
-            text-align: center;
-            width: fit-content;
-        }
-
-        .detail-stats-row {
-            display: flex;
-            justify-content: space-around;
-            padding: 15px 0;
-            border-top: 1px solid #eee;
-            border-bottom: 1px solid #eee;
-            margin: 0 20px 20px;
-        }
-        .stat-item { text-align: center; }
-        .stat-label { font-size: 11px; color: #aaa; font-weight: 600; margin-bottom: 4px; }
-        .stat-value { font-size: 18px; font-weight: 700; color: #444; }
-
-        .detail-section { padding: 0 20px; margin-bottom: 30px; }
-        .section-title { font-size: 20px; font-weight: 700; margin-bottom: 10px; }
-        .detail-text { line-height: 1.6; color: #333; font-size: 15px; }
-
-        .review-card {
-            background: #f9f9f9;
-            padding: 15px;
-            border-radius: 12px;
-            margin-bottom: 10px;
-        }
-        .stars { color: var(--warning); letter-spacing: 2px; font-size: 14px; }
-
-        /* BACK BUTTONS */
-        .nav-back {
-            padding: 15px 20px;
-            color: var(--primary);
-            font-size: 16px;
-            cursor: pointer;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
+            align-items: flex-end;
+            padding: 0 10px;
             gap: 5px;
         }
 
-        /* ADMIN & FORMS */
-        .admin-container { padding: 20px; max-width: 600px; margin: 0 auto; }
-        .admin-card {
-            border: 1px solid #eee;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        .tab {
+            height: 34px;
+            padding: 0 15px;
+            background: #e0e0e0;
+            border-radius: 8px 8px 0 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: #555;
+            cursor: pointer;
+            border: 1px solid transparent;
+            border-bottom: none;
+            max-width: 200px;
         }
-        input, textarea, select {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            background: #fdfdfd;
-            border-radius: 8px;
-            margin-bottom: 10px;
-            font-size: 15px;
+        .tab.active {
+            background: #fff;
+            color: #000;
+            font-weight: 500;
         }
-        .btn-full {
-            width: 100%;
-            padding: 14px;
-            background: var(--primary);
-            color: white;
+        .tab-close {
+            width: 16px; height: 16px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 10px;
+        }
+        .tab-close:hover { background: #ccc; }
+
+        /* MDM Toolbar */
+        .mdm-toolbar {
+            height: 50px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            justify-content: space-between;
+            background: #fff;
+        }
+        
+        .search-box {
+            background: #f2f2f7;
             border: none;
-            border-radius: 10px;
-            font-size: 16px;
-            font-weight: 600;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            width: 250px;
+        }
+        .search-box:focus { outline: 2px solid var(--blue); background: #fff; }
+
+        .tool-btn {
+            border: 1px solid #ddd;
+            background: #fff;
+            color: var(--blue);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            display: flex; align-items: center; gap: 6px;
+            transition: 0.2s;
+        }
+        .tool-btn:hover { background: #f0f8ff; border-color: var(--blue); }
+
+        /* MDM Content Area */
+        .mdm-content-area {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            background: #fff;
+        }
+        
+        /* The "Views" inside the content area */
+        .view-panel {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            overflow-y: auto;
+            display: none; /* Hidden unless active */
+            background: #fff;
+            padding: 20px;
+        }
+        .view-panel.active { display: block; }
+
+        /* MDM Table */
+        .mdm-table { width: 100%; border-collapse: collapse; }
+        .mdm-table th {
+            text-align: left;
+            padding: 10px 15px;
+            border-bottom: 1px solid #eee;
+            color: #888;
+            font-size: 12px;
+            text-transform: uppercase;
+            position: sticky; top: 0; background: #fff; z-index: 10;
+        }
+        .mdm-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #f9f9f9;
+            vertical-align: middle;
+            font-size: 14px;
+        }
+        .mdm-table tr:hover { background: #f5f5f7; cursor: pointer; }
+
+        /* ==========================================================
+           THEME: CLASSIC (Mobile)
+           ========================================================== */
+        .classic-wrapper {
+            display: none;
+            flex-direction: column;
+            height: 100%;
+            background: #fff;
+        }
+        /* Active when NOT mdm theme */
+        body:not(.theme-mdm) .classic-wrapper { display: flex; }
+
+        .classic-header {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            display: flex; justify-content: space-between; align-items: center;
+            position: sticky; top: 0; z-index: 50;
+        }
+        .classic-title { font-size: 20px; font-weight: 700; }
+        
+        .classic-list { flex: 1; overflow-y: auto; padding: 0; }
+        .classic-item {
+            display: flex; align-items: center;
+            padding: 12px 15px;
+            border-bottom: 1px solid #f0f0f0;
             cursor: pointer;
         }
-        .btn-danger { background: var(--danger); }
+        .classic-item:active { background: #f5f5f5; }
+
+        .app-icon {
+            width: 58px; height: 58px;
+            border-radius: 12px;
+            background: #eee;
+            background-size: cover; background-position: center;
+            border: 1px solid rgba(0,0,0,0.1);
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+        .get-btn {
+            background: #f0f0f8; color: var(--blue);
+            font-weight: 700; font-size: 13px;
+            padding: 6px 18px; border-radius: 18px; border: none;
+        }
+
+        /* ==========================================================
+           APP DETAIL VIEW (The "Tab" Content)
+           ========================================================== */
+        .detail-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding-bottom: 50px;
+            animation: fadeIn 0.3s;
+        }
+
+        .detail-header { display: flex; gap: 20px; margin-bottom: 25px; }
+        .detail-icon-large {
+            width: 110px; height: 110px;
+            border-radius: 22px;
+            background: #eee;
+            background-size: cover; background-position: center;
+            border: 1px solid rgba(0,0,0,0.1);
+            flex-shrink: 0;
+        }
+        .detail-info h1 { margin: 0 0 5px 0; font-size: 24px; }
+        .detail-info h2 { margin: 0 0 15px 0; font-size: 15px; color: #888; font-weight: 400; }
         
-        /* SETTINGS SWITCH */
-        .setting-row { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; border-bottom: 1px solid #eee; }
-        .switch { position: relative; display: inline-block; width: 50px; height: 28px; }
-        .switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
-        .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
-        input:checked + .slider { background-color: var(--primary); }
-        input:checked + .slider:before { transform: translateX(22px); }
+        .action-btn {
+            background: var(--blue); color: white;
+            padding: 10px 28px; border-radius: 20px;
+            text-decoration: none; font-weight: 600; font-size: 14px;
+            display: inline-block;
+        }
+
+        .stats-grid {
+            display: grid; grid-template-columns: repeat(3, 1fr);
+            border-top: 1px solid #eee; border-bottom: 1px solid #eee;
+            padding: 15px 0; margin-bottom: 25px;
+        }
+        .stat-box { text-align: center; border-right: 1px solid #eee; }
+        .stat-box:last-child { border: none; }
+        .stat-label { font-size: 11px; color: #aaa; font-weight: 600; margin-bottom: 4px; }
+        .stat-val { font-size: 18px; font-weight: 700; color: #333; }
+
+        .section-title { font-size: 19px; font-weight: 700; margin: 30px 0 10px 0; }
+        .text-block { line-height: 1.6; color: #333; font-size: 15px; }
+        
+        .version-box {
+            background: #f9f9f9; padding: 15px; border-radius: 10px;
+        }
+        .ver-top { display: flex; justify-content: space-between; margin-bottom: 8px; }
+        .ver-num { color: #888; font-size: 13px; }
+
+        /* COMMENTS */
+        .review-item {
+            background: #f8f8f8; padding: 15px; border-radius: 12px; margin-bottom: 15px;
+        }
+        .review-header { display: flex; justify-content: space-between; margin-bottom: 5px; }
+        .review-user { font-weight: 700; font-size: 14px; }
+        .review-date { font-size: 12px; color: #999; }
+        .review-stars { color: #FF9500; font-size: 13px; margin-bottom: 5px; }
+        .review-body { font-size: 14px; color: #444; line-height: 1.4; }
+
+        .write-review { margin-top: 20px; border-top: 1px solid #eee; padding-top: 20px; }
+        .write-review textarea {
+            width: 100%; border: 1px solid #ddd; padding: 10px;
+            border-radius: 8px; font-size: 14px; margin-bottom: 10px;
+        }
+
+        /* ==========================================================
+           ADMIN DASHBOARD
+           ========================================================== */
+        .admin-layout { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .admin-card {
+            background: #fff; border: 1px solid #eee; padding: 20px;
+            border-radius: 12px; margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+        }
+        .form-input {
+            width: 100%; padding: 12px; border: 1px solid #ddd;
+            border-radius: 8px; margin-bottom: 10px; background: #fbfbfb;
+        }
+        .btn-full { width: 100%; padding: 12px; border: none; border-radius: 8px; font-weight: 600; color: white; }
+        .btn-blue { background: var(--blue); }
+        .btn-red { background: var(--danger); }
+        
+        /* Admin Delete List */
+        .admin-list-item {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 10px; border-bottom: 1px solid #eee;
+        }
+        .trash-btn {
+            color: var(--danger); background: #fff0f0; border: none;
+            width: 32px; height: 32px; border-radius: 6px;
+            display: flex; align-items: center; justify-content: center;
+        }
+        
+        /* Overlay for Mobile Details */
+        .mobile-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #fff; z-index: 1000;
+            overflow-y: auto;
+            transform: translateY(100%);
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            display: none;
+        }
+        .mobile-overlay.open { transform: translateY(0); display: block; }
+        .mobile-nav { padding: 15px; border-bottom: 1px solid #eee; color: var(--blue); cursor: pointer; display: flex; align-items: center; gap: 5px; font-weight: 500;}
 
         /* LOADING */
-        .loading-screen {
-            position: fixed; top:0; left:0; width:100%; height:100%;
-            background:white; z-index:9999;
-            display: flex; justify-content:center; align-items:center;
-            color: #888; flex-direction: column;
+        #loader {
+            position: fixed; inset: 0; background: #fff; z-index: 9999;
+            display: flex; justify-content: center; align-items: center;
+            flex-direction: column; color: #888;
         }
         .spinner {
-            border: 4px solid #f3f3f3; border-top: 4px solid var(--primary);
-            border-radius: 50%; width: 40px; height: 40px;
-            animation: spin 1s linear infinite; margin-bottom: 15px;
+            width: 30px; height: 30px; border: 3px solid #eee;
+            border-top-color: var(--blue); border-radius: 50%;
+            animation: spin 0.8s linear infinite; margin-bottom: 10px;
         }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes fadeInScale { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
     </style>
 </head>
-<body class="theme-mdm"> <div id="global-loading" class="loading-screen">
+<body class="theme-mdm"> <div id="loader">
         <div class="spinner"></div>
-        <div>Connecting to Database...</div>
+        <div>Loading Store...</div>
     </div>
 
     <div class="mdm-window">
-        <div class="mdm-header">
-            <div class="mdm-brand">
-                <i class="ph ph-squares-four" style="color:var(--primary); font-size:28px;"></i>
-                <span>School Apps</span>
+        <div class="mdm-tab-bar" id="mdm-tabs">
+            <div class="tab active" onclick="switchTab('home')" id="tab-home">
+                <i class="ph ph-house"></i> Home
             </div>
-            <div class="mdm-toolbar">
-                <input type="text" class="mdm-search-input" id="mdm-search" placeholder="Search..." onkeyup="handleSearch(this.value)">
-                
-                <div class="mdm-btn" onclick="location.reload()">
+            </div>
+
+        <div class="mdm-toolbar">
+            <div style="font-weight:600; font-size:16px;">School Apps</div>
+            <input type="text" class="search-box" placeholder="Search apps..." onkeyup="handleSearch(this.value)">
+            <div style="display:flex; gap:10px;">
+                <button class="tool-btn" onclick="location.reload()">
                     <i class="ph ph-arrows-clockwise"></i> Refresh
-                </div>
-
-                <div class="mdm-btn" onclick="openRequestPage()">
+                </button>
+                <button class="tool-btn" onclick="openReportModal()">
                     <i class="ph ph-chat-text"></i> Report
-                </div>
-
-                <div class="mdm-btn" onclick="openSettingsPage()" style="border:none; padding:8px;">
-                    <i class="ph ph-gear" style="font-size:24px; color:#555;"></i>
-                </div>
+                </button>
             </div>
         </div>
 
-        <div class="mdm-content">
-            <table class="mdm-table">
-                <thead class="mdm-thead">
-                    <tr>
-                        <th width="60">Icon</th>
-                        <th>Application</th>
-                        <th width="100">Version</th>
-                        <th width="100">Size</th>
-                        <th width="120" style="text-align:right;">Status</th>
-                    </tr>
-                </thead>
-                <tbody class="mdm-tbody" id="mdm-list-body">
-                    </tbody>
-            </table>
-            <div id="mdm-empty" style="text-align:center; padding:40px; color:#999; display:none;">No apps found.</div>
+        <div class="mdm-content-area">
+            
+            <div id="view-home" class="view-panel active">
+                <table class="mdm-table">
+                    <thead>
+                        <tr>
+                            <th width="60">Icon</th>
+                            <th>Name</th>
+                            <th>Version</th>
+                            <th>Size</th>
+                            <th align="right">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="mdm-list-body">
+                        </tbody>
+                </table>
+            </div>
+
+            <div id="view-app-detail" class="view-panel">
+                </div>
+
         </div>
     </div>
 
-
-    <div class="classic-ui">
-        <div class="classic-header">
+    <div class="classic-wrapper">
+        <header class="classic-header">
             <div class="classic-title">FemDihShop</div>
-            <div style="display:flex; gap:15px; align-items:center;">
-                <i class="ph ph-gear" style="font-size:24px; color:var(--primary); cursor:pointer;" onclick="openSettingsPage()"></i>
-                <span style="color:var(--primary); font-weight:600; cursor:pointer;" onclick="openRequestPage()">Request</span>
-            </div>
-        </div>
+            <div style="color:var(--blue); font-weight:600;" onclick="openReportModal()">Report</div>
+        </header>
         <div class="classic-list" id="classic-list-body">
             </div>
     </div>
 
-
-    <div id="view-detail" class="overlay-view">
-        <div class="nav-back" onclick="goBackHome()">
-            <i class="ph ph-caret-left"></i> Back to Store
+    <div id="mobile-detail-overlay" class="mobile-overlay">
+        <div class="mobile-nav" onclick="closeMobileOverlay()">
+            <i class="ph ph-caret-left"></i> Back
         </div>
-
-        <div class="detail-hero">
-            <div id="det-icon" class="detail-icon-large"></div>
-            <div class="detail-header-info">
-                <div id="det-name" class="detail-title">App Name</div>
-                <div id="det-comp" class="detail-subtitle">Developer</div>
-                <a id="det-btn" href="#" class="detail-action-btn">INSTALL</a>
+        <div id="mobile-detail-content" style="padding: 20px;">
             </div>
-        </div>
-
-        <div class="detail-stats-row">
-            <div class="stat-item">
-                <div class="stat-label">RATINGS</div>
-                <div class="stat-value">4.8 ★</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-label">AGE</div>
-                <div class="stat-value">4+</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-label">VERSION</div>
-                <div id="det-ver" class="stat-value">1.0</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-label">SIZE</div>
-                <div id="det-size" class="stat-value">--</div>
-            </div>
-        </div>
-
-        <div class="detail-section">
-            <div class="section-title">What's New</div>
-            <div class="detail-text" style="color:#555; font-size:14px; margin-bottom:10px;">
-                Version <span id="det-ver-text">1.0</span> • <span id="det-date">Recently</span>
-            </div>
-            <div class="detail-text">
-                - Bug fixes and performance improvements.<br>
-                - Enhanced stability for school devices.
-            </div>
-        </div>
-
-        <div class="detail-section">
-            <div class="section-title">About</div>
-            <div id="det-desc" class="detail-text">
-                No description provided.
-            </div>
-        </div>
-
-        <div class="detail-section">
-            <div class="section-title">Reviews</div>
-            <div class="review-card">
-                <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
-                    <span style="font-weight:600; font-size:13px;">Student</span>
-                    <span style="font-size:11px; color:#999;">Yesterday</span>
-                </div>
-                <div class="stars">★★★★★</div>
-                <div style="font-size:13px; margin-top:5px; color:#444;">Finally available on the school store! Works great.</div>
-            </div>
-            <div class="review-card">
-                <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
-                    <span style="font-weight:600; font-size:13px;">Teacher</span>
-                    <span style="font-size:11px; color:#999;">2 days ago</span>
-                </div>
-                <div class="stars">★★★★☆</div>
-                <div style="font-size:13px; margin-top:5px; color:#444;">Good educational value, keeps students engaged.</div>
-            </div>
-        </div>
     </div>
 
 
-    <div id="view-request" class="overlay-view">
-        <div class="nav-back" onclick="goBackHome()">
-            <i class="ph ph-caret-left"></i> Cancel
+    <div id="admin-login" class="mobile-overlay" style="z-index: 2000; background: #f5f5f7;">
+        <div class="admin-layout" style="margin-top: 100px; text-align: center;">
+            <i class="ph ph-lock-key" style="font-size: 40px; color: #888; margin-bottom: 20px;"></i>
+            <h2>Admin Access</h2>
+            <input type="password" id="admin-pin" class="form-input" style="text-align:center; font-size: 20px; letter-spacing: 5px;" placeholder="••••">
+            <button class="btn-full btn-blue" onclick="checkAdmin()">Unlock</button>
+            <button class="btn-full" style="background:none; color:#888; margin-top:10px;" onclick="location.href='/'">Exit</button>
         </div>
-        <div class="admin-container">
-            <h2>Request App or Report Bug</h2>
-            <p style="color:#666; margin-bottom:20px;">
-                Missing a game or app? Is something not installing?
-                Fill out the form below and the admin will see it.
-            </p>
-            
+    </div>
+
+    <div id="admin-dash" class="mobile-overlay" style="z-index: 2000; background: #f5f5f7;">
+        <div class="mobile-nav" onclick="location.href='/'">
+            <i class="ph ph-sign-out"></i> Logout
+        </div>
+        <div class="admin-layout">
+            <h2>Manager Dashboard</h2>
+
             <div class="admin-card">
-                <label style="font-size:12px; font-weight:700; color:#888;">MESSAGE</label>
-                <textarea id="req-message" rows="6" placeholder="e.g. Please add Minecraft Education Edition..."></textarea>
-                <button class="btn-full" onclick="submitRequest()">Send Request</button>
-            </div>
-        </div>
-    </div>
-
-
-    <div id="view-settings" class="overlay-view">
-        <div class="nav-back" onclick="goBackHome()">
-            <i class="ph ph-caret-left"></i> Settings
-        </div>
-        <div style="padding: 20px;">
-            <h2>Preferences</h2>
-            <div class="admin-card" style="padding:0;">
-                <div class="setting-row">
-                    <div>
-                        <div style="font-weight:600; font-size:16px;">School MDM Theme</div>
-                        <div style="font-size:13px; color:#888; margin-top:2px;">Use desktop window style</div>
-                    </div>
-                    <label class="switch">
-                        <input type="checkbox" id="theme-toggler" onchange="toggleAppTheme()">
-                        <span class="slider"></span>
-                    </label>
+                <h3 style="margin-top:0;">+ Add New App</h3>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                    <input id="n-name" class="form-input" placeholder="App Name">
+                    <input id="n-comp" class="form-input" placeholder="Developer">
                 </div>
-                <div class="setting-row">
-                    <div>
-                        <div style="font-weight:600; font-size:16px;">Version</div>
-                        <div style="font-size:13px; color:#888;">Current build</div>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                    <input id="n-id" class="form-input" placeholder="App Store ID (Required)">
+                    <input id="n-ver" class="form-input" placeholder="Version (e.g. 1.0)">
+                </div>
+                <input id="n-scheme" class="form-input" placeholder="URL Scheme (e.g. zoom://)">
+                <input id="n-icon" class="form-input" placeholder="Icon URL (Optional)">
+                <button class="btn-full btn-success" style="background:var(--success)" onclick="saveApp()">Save App</button>
+                <p style="font-size:11px; color:#888; margin-top:10px;">
+                    * Tip: If you provide a valid "App Store ID", we will auto-fetch the icon, description, and "What's New" from Apple.
+                </p>
+            </div>
+
+            <div class="admin-card">
+                <h3 style="margin-top:0; color:var(--text-primary)">Manage Apps</h3>
+                <div id="admin-app-list" style="max-height: 300px; overflow-y: auto; border:1px solid #eee; border-radius:8px;">
                     </div>
-                    <div style="color:#888; font-size:14px;">v5.2.0</div>
+            </div>
+
+            <div class="admin-card">
+                <h3 style="margin-top:0; color:var(--blue)">Requests & Reports</h3>
+                <div id="admin-reports" style="max-height: 200px; overflow-y: auto;">
+                    Loading...
                 </div>
             </div>
-            <p style="text-align:center; color:#ccc; font-size:12px; margin-top:40px;">
-                FemDihShop Enterprise<br>
-                Managed by Admin
-            </p>
         </div>
     </div>
 
-
-    <div id="view-admin-login" class="overlay-view">
-        <div class="nav-back" onclick="goToRoot()">
-            <i class="ph ph-x"></i> Exit
-        </div>
-        <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:80%;">
-            <div style="background:#eee; width:80px; height:80px; border-radius:50%; display:flex; align-items:center; justify-content:center; margin-bottom:20px;">
-                <i class="ph ph-lock-key" style="font-size:32px; color:#555;"></i>
+    <div id="report-modal" class="mobile-overlay" style="background:rgba(0,0,0,0.5); display:none; align-items:center; justify-content:center;">
+        <div style="background:white; padding:20px; border-radius:12px; width:90%; max-width:400px; animation:fadeIn 0.2s;">
+            <h3>Send Report</h3>
+            <textarea id="rep-msg" class="form-input" rows="4" placeholder="What's wrong?"></textarea>
+            <div style="display:flex; gap:10px;">
+                <button class="btn-full" style="background:#eee; color:#333;" onclick="document.getElementById('report-modal').style.display='none'">Cancel</button>
+                <button class="btn-full btn-blue" onclick="sendReport()">Send</button>
             </div>
-            <h2>Restricted Access</h2>
-            <p style="color:#888; margin-bottom:30px;">Enter Manager PIN</p>
-            
-            <input type="password" id="pin-input" style="text-align:center; letter-spacing:8px; font-size:24px; max-width:200px;" placeholder="••••" maxlength="4">
-            <button class="btn-full" style="max-width:200px; margin-top:10px;" onclick="attemptLogin()">Unlock</button>
         </div>
     </div>
-
-
-    <div id="view-admin-dash" class="overlay-view" style="background:#f5f5f7;">
-        </div>
 
 
     <script>
-        // --- CONFIGURATION ---
+        // 1. CONFIGURATION
         const firebaseConfig = {
             apiKey: "AIzaSyDGi1smvUpUmw76Qrc0XWLRDDgpfEZAEDA",
             authDomain: "schoolappdownload.firebaseapp.com",
@@ -660,350 +496,422 @@
             projectId: "schoolappdownload",
             storageBucket: "schoolappdownload.firebasestorage.app",
             messagingSenderId: "386507255292",
-            appId: "1:386507255292:web:c20e841b39538c43251679",
-            measurementId: "G-HVZLQ96B6P"
+            appId: "1:386507255292:web:c20e841b39538c43251679"
         };
-
-        // Initialize Firebase
+        
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
-        
-        // --- STATE & CONSTANTS ---
-        const ADMIN_PIN = "1234"; 
+        const ADMIN_PIN = "1234";
+
+        // Global State
         let allApps = [];
-        let currentTheme = localStorage.getItem('theme') || 'mdm'; // default to mdm
+        let activeTabId = 'home';
+        let currentOpenAppId = null;
 
-        // --- LIFECYCLE ---
-        
+        // 2. INITIALIZATION
         window.onload = function() {
-            // 1. Check URL for Admin or ID
-            const params = new URLSearchParams(window.location.search);
-            const page = params.get('page');
-            const id = params.get('id');
-
-            // Apply Theme immediately
-            applyThemeUI();
-
-            // 2. Route
-            if (page === 'admin') {
-                showView('view-admin-login');
-                document.getElementById('global-loading').style.display = 'none';
+            // Theme Detection
+            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+            const forceTheme = localStorage.getItem('theme');
+            
+            // If strictly mobile phone, default to classic, else MDM
+            if (forceTheme === 'classic' || (isMobile && window.innerWidth < 768)) {
+                document.body.classList.remove('theme-mdm');
             } else {
-                // Fetch Data First
-                db.ref('apps').on('value', (snapshot) => {
-                    const data = snapshot.val();
-                    allApps = data ? Object.values(data) : [];
-                    
-                    // Render Lists
-                    renderMDMList(allApps);
-                    renderClassicList(allApps);
+                document.body.classList.add('theme-mdm');
+            }
 
-                    // Remove Loading Screen
-                    document.getElementById('global-loading').style.display = 'none';
-
-                    // If ID is present, show Detail View automatically
-                    if (id) {
-                        loadAppDetail(id);
-                    }
-                });
+            // Check URL Params
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('page') === 'admin') {
+                document.getElementById('admin-login').classList.add('open');
+                document.getElementById('loader').style.display = 'none';
+            } else {
+                initData();
             }
         };
 
-        // --- THEME LOGIC ---
-        function applyThemeUI() {
-            const toggle = document.getElementById('theme-toggler');
-            if (currentTheme === 'mdm') {
-                document.body.classList.add('theme-mdm');
-                if(toggle) toggle.checked = true;
-            } else {
-                document.body.classList.remove('theme-mdm');
-                if(toggle) toggle.checked = false;
-            }
-        }
-
-        function toggleAppTheme() {
-            currentTheme = currentTheme === 'mdm' ? 'classic' : 'mdm';
-            localStorage.setItem('theme', currentTheme);
-            applyThemeUI();
-        }
-
-        // --- NAVIGATION ---
-        function showView(viewId) {
-            // Hide all overlays
-            document.querySelectorAll('.overlay-view').forEach(el => el.style.display = 'none');
-            
-            if (viewId) {
-                const el = document.getElementById(viewId);
-                if(el) el.style.display = 'flex'; // use flex for styling
-            }
-        }
-
-        function goBackHome() {
-            // Clear ID param from URL without reload to clean up address bar
-            const url = new URL(window.location);
-            url.searchParams.delete('id');
-            window.history.pushState({}, '', url);
-            
-            showView(null); // Hides all overlays, revealing base layer (MDM or Classic)
-        }
-
-        function goToRoot() {
-            window.location.href = window.location.pathname;
-        }
-
-        function openSettingsPage() { showView('view-settings'); }
-        function openRequestPage() { showView('view-request'); }
-
-        // --- CRITICAL: OPEN APP LOGIC ---
-        // This forces a reload so the Smart Banner works
-        function navigateToApp(id) {
-            window.location.href = "?id=" + id;
-        }
-
-        // --- RENDERERS ---
-
-        // 1. MDM Table Renderer
-        function renderMDMList(apps) {
-            const tbody = document.getElementById('mdm-list-body');
-            tbody.innerHTML = '';
-            
-            if (apps.length === 0) {
-                document.getElementById('mdm-empty').style.display = 'block';
-                return;
-            }
-            document.getElementById('mdm-empty').style.display = 'none';
-
-            apps.forEach(app => {
-                const tr = document.createElement('tr');
-                tr.onclick = () => navigateToApp(app.id); // Click row -> Reload with ID
-
-                // Safe Icon
-                const iconHtml = (app.color && app.color.includes('http')) 
-                    ? `<img src="${app.color}" style="width:36px; height:36px; border-radius:8px; object-fit:cover;">` 
-                    : `<div style="width:36px; height:36px; border-radius:8px; background:${app.color||'#ccc'}; display:flex; justify-content:center; align-items:center; color:white; font-weight:bold;">${app.name[0]}</div>`;
-
-                tr.innerHTML = `
-                    <td>${iconHtml}</td>
-                    <td style="font-weight:500;">${app.name}</td>
-                    <td style="color:#666;">${app.version || '1.0'}</td>
-                    <td style="color:#666;">${app.size || 'N/A'}</td>
-                    <td style="text-align:right;"><span class="install-pill">INSTALL</span></td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        // 2. Classic List Renderer
-        function renderClassicList(apps) {
-            const container = document.getElementById('classic-list-body');
-            container.innerHTML = '';
-
-            apps.forEach(app => {
-                const item = document.createElement('div');
-                item.className = 'classic-item';
+        function initData() {
+            db.ref('apps').on('value', (snap) => {
+                const val = snap.val();
+                allApps = val ? Object.values(val) : [];
+                renderHomeLists(allApps);
+                renderAdminList(allApps); // Update admin list if open
                 
-                // CRITICAL FIX: Ensure click works on entire row
-                item.onclick = function() { navigateToApp(app.id); };
+                document.getElementById('loader').style.display = 'none';
 
-                // Background Icon
-                let bgStyle = (app.color && app.color.includes('http'))
-                    ? `background-image: url('${app.color}')`
-                    : `background-color: ${app.color||'#ccc'}`;
-
-                item.innerHTML = `
-                    <div class="classic-icon" style="${bgStyle}"></div>
-                    <div class="classic-info">
-                        <div class="classic-name">${app.name}</div>
-                        <div class="classic-meta">${app.company || 'Education'}</div>
-                    </div>
-                    <button class="classic-get-btn">GET</button>
-                `;
-                container.appendChild(item);
-            });
-        }
-
-        // --- DETAIL PAGE LOGIC ---
-        function loadAppDetail(id) {
-            const app = allApps.find(a => a.id === id);
-            if (!app) return; // Should not happen if data loaded
-
-            showView('view-detail');
-
-            // Fill Info
-            document.getElementById('det-name').innerText = app.name;
-            document.getElementById('det-comp').innerText = app.company || "Unknown Developer";
-            document.getElementById('det-desc').innerText = app.desc || "No description available.";
-            document.getElementById('det-ver').innerText = app.version || "1.0";
-            document.getElementById('det-ver-text').innerText = app.version || "1.0";
-            document.getElementById('det-size').innerText = app.size || "50 MB";
-            document.getElementById('det-date').innerText = app.releaseDate ? new Date(app.releaseDate).toLocaleDateString() : "Recently";
-            
-            // Link
-            document.getElementById('det-btn').href = app.scheme || "#";
-
-            // Icon
-            const iconEl = document.getElementById('det-icon');
-            if (app.color && app.color.includes('http')) {
-                iconEl.style.backgroundImage = `url('${app.color}')`;
-                iconEl.style.backgroundColor = 'transparent';
-            } else {
-                iconEl.style.backgroundImage = 'none';
-                iconEl.style.backgroundColor = app.color || '#999';
-            }
-        }
-
-        // --- SEARCH ---
-        function handleSearch(query) {
-            const q = query.toLowerCase();
-            const filtered = allApps.filter(a => a.name.toLowerCase().includes(q));
-            renderMDMList(filtered);
-        }
-
-        // --- REQUEST FORM ---
-        function submitRequest() {
-            const msg = document.getElementById('req-message').value;
-            if(!msg) return alert("Please type a message.");
-            
-            db.ref('requests').push({
-                message: msg,
-                date: Date.now()
-            }, (err) => {
-                if(err) alert("Error: " + err.message);
-                else {
-                    alert("Sent successfully!");
-                    document.getElementById('req-message').value = "";
-                    goBackHome();
+                // Handle ?id= param (Open App immediately)
+                const params = new URLSearchParams(window.location.search);
+                const id = params.get('id');
+                if (id) {
+                    openApp(id);
                 }
             });
         }
 
-        // --- ADMIN SECURE LOGIC ---
-        function attemptLogin() {
-            const input = document.getElementById('pin-input').value;
-            if (input === ADMIN_PIN) {
-                renderAdminDashboard();
+        // 3. RENDERING LISTS
+        function renderHomeLists(apps) {
+            // MDM Table
+            const mdmBody = document.getElementById('mdm-list-body');
+            mdmBody.innerHTML = '';
+            
+            // Classic List
+            const classicBody = document.getElementById('classic-list-body');
+            classicBody.innerHTML = '';
+
+            apps.forEach(app => {
+                const iconStyle = (app.icon && app.icon.startsWith('http')) 
+                    ? `background-image:url('${app.icon}')` 
+                    : `background-color:${app.color||'#ccc'}; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:bold; font-size:20px;`;
+                
+                const iconInner = (app.icon && app.icon.startsWith('http')) ? '' : app.name[0];
+
+                // MDM Row
+                const tr = document.createElement('tr');
+                tr.onclick = () => openApp(app.id);
+                tr.innerHTML = `
+                    <td><div class="app-icon" style="width:40px; height:40px; margin:0; ${iconStyle}">${iconInner}</div></td>
+                    <td style="font-weight:600">${app.name}</td>
+                    <td style="color:#888">${app.version || '1.0'}</td>
+                    <td style="color:#888">${app.size || 'N/A'}</td>
+                    <td align="right"><button class="get-btn">OPEN</button></td>
+                `;
+                mdmBody.appendChild(tr);
+
+                // Classic Item
+                const div = document.createElement('div');
+                div.className = 'classic-item';
+                div.onclick = () => openApp(app.id);
+                div.innerHTML = `
+                    <div class="app-icon" style="${iconStyle}">${iconInner}</div>
+                    <div style="flex:1">
+                        <div style="font-weight:600; font-size:16px;">${app.name}</div>
+                        <div style="font-size:13px; color:#888;">${app.company || 'Education'}</div>
+                    </div>
+                    <button class="get-btn">GET</button>
+                `;
+                classicBody.appendChild(div);
+            });
+        }
+
+        // 4. OPEN APP LOGIC (The "Tab" System)
+        async function openApp(id) {
+            currentOpenAppId = id;
+            const app = allApps.find(a => a.id === id);
+            if (!app) return;
+
+            // Update URL for Smart Banner (Replace State to avoid history spam, but sets URL for reload)
+            const url = new URL(window.location);
+            url.searchParams.set('id', id);
+            window.history.replaceState({}, '', url);
+
+            // Fetch Real Apple Data
+            let appleData = {};
+            if (app.id && /^\d+$/.test(app.id)) {
+                // It looks like a numeric Apple ID
+                try {
+                    const res = await fetch(`https://itunes.apple.com/lookup?id=${app.id}`);
+                    const json = await res.json();
+                    if (json.results && json.results.length > 0) {
+                        appleData = json.results[0];
+                    }
+                } catch (e) { console.log("Apple API failed", e); }
+            }
+
+            // Generate HTML Content
+            const contentHTML = generateDetailHTML(app, appleData);
+
+            // DECIDE: MDM Tab or Mobile Overlay?
+            if (document.body.classList.contains('theme-mdm')) {
+                createOrSwitchTab(app, contentHTML);
             } else {
-                alert("Access Denied: Incorrect PIN");
-                document.getElementById('pin-input').value = "";
+                const overlay = document.getElementById('mobile-detail-overlay');
+                document.getElementById('mobile-detail-content').innerHTML = contentHTML;
+                overlay.classList.add('open');
+                loadComments(id, 'mobile-comments-area');
             }
         }
 
-        // Dynamic HTML Injection for Security (Users cannot see this in View Source easily)
-        function renderAdminDashboard() {
-            const dash = document.getElementById('view-admin-dash');
+        function generateDetailHTML(app, appleData) {
+            // Use Apple data if available, else fallback to DB
+            const desc = appleData.description ? appleData.description.replace(/\n/g, '<br>') : (app.desc || "No description provided.");
+            const releaseNotes = appleData.releaseNotes ? appleData.releaseNotes.replace(/\n/g, '<br>') : "Bug fixes and improvements.";
+            const version = appleData.version || app.version || "1.0";
+            const iconUrl = appleData.artworkUrl512 || app.icon;
             
-            dash.innerHTML = `
-                <div class="nav-back" onclick="goToRoot()">
-                    <i class="ph ph-sign-out"></i> Logout
-                </div>
-                <div class="admin-container">
-                    <h2 style="margin-top:0;">Manager Dashboard</h2>
+            // Icon Logic
+            const iconStyle = (iconUrl && iconUrl.startsWith('http')) 
+                ? `background-image:url('${iconUrl}')` 
+                : `background-color:${app.color||'#ccc'}; display:flex; align-items:center; justify-content:center; color:#fff; font-size:40px;`;
+            const iconInner = (iconUrl && iconUrl.startsWith('http')) ? '' : app.name[0];
+
+            return `
+                <div class="detail-container">
+                    <div class="detail-header">
+                        <div class="detail-icon-large" style="${iconStyle}">${iconInner}</div>
+                        <div class="detail-info">
+                            <h1>${app.name}</h1>
+                            <h2>${appleData.artistName || app.company || "Developer"}</h2>
+                            <a href="${app.scheme || '#'}" class="action-btn">OPEN</a>
+                        </div>
+                    </div>
+
+                    <div class="stats-grid">
+                        <div class="stat-box">
+                            <div class="stat-label">RATINGS</div>
+                            <div class="stat-val">${appleData.averageUserRating ? appleData.averageUserRating.toFixed(1) + '★' : '4.5★'}</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-label">AGE</div>
+                            <div class="stat-val">${appleData.contentAdvisoryRating || '4+'}</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-label">VERSION</div>
+                            <div class="stat-val">${version}</div>
+                        </div>
+                    </div>
+
+                    <div class="version-box">
+                        <div class="ver-top">
+                            <span style="font-weight:600;">What's New</span>
+                            <span class="ver-num">v${version}</span>
+                        </div>
+                        <div class="text-block" style="font-size:14px;">${releaseNotes}</div>
+                    </div>
+
+                    <div class="section-title">About</div>
+                    <div class="text-block">${desc}</div>
+
+                    <div class="section-title">Ratings & Reviews</div>
+                    <div id="comments-area-${app.id}">Loading comments...</div>
                     
-                    <div class="admin-card">
-                        <h3 class="section-title" style="color:var(--success)">+ Add Application</h3>
-                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-                            <input id="new-name" placeholder="Name (e.g. Zoom)">
-                            <input id="new-comp" placeholder="Developer">
-                        </div>
-                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-                            <input id="new-id" placeholder="App Store ID">
-                            <input id="new-scheme" placeholder="Scheme (zoom://)">
-                        </div>
-                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-                            <input id="new-ver" placeholder="Version (5.0)">
-                            <input id="new-size" placeholder="Size (120MB)">
-                        </div>
-                        <input id="new-date" type="date">
-                        <input id="new-color" placeholder="Icon URL or Hex Color">
-                        <textarea id="new-desc" placeholder="Description..."></textarea>
-                        
-                        <button class="btn-full" onclick="adminAddApp()">Save to Database</button>
-                    </div>
-
-                    <div class="admin-card">
-                        <h3 class="section-title" style="color:var(--primary)">User Reports</h3>
-                        <div id="report-list-container" style="max-height:300px; overflow-y:auto;">
-                            Loading...
-                        </div>
-                    </div>
-
-                    <div class="admin-card" style="border-color:var(--danger)">
-                        <h3 class="section-title" style="color:var(--danger)">Delete Application</h3>
-                        <p style="color:#666; font-size:13px; margin-bottom:10px;">Warning: This cannot be undone.</p>
-                        <input id="del-name" placeholder="Type exact App Name">
-                        <button class="btn-full btn-danger" onclick="adminDelApp()">Delete App</button>
+                    <div class="write-review">
+                        <div style="font-weight:600; margin-bottom:10px;">Write a Review</div>
+                        <textarea id="comment-input-${app.id}" placeholder="Your thoughts (optional)"></textarea>
+                        <button class="btn-full btn-blue" style="width:auto; padding:8px 20px;" onclick="postComment('${app.id}')">Submit</button>
                     </div>
                 </div>
             `;
+        }
 
-            // Switch Views
-            document.getElementById('view-admin-login').style.display = 'none';
-            dash.style.display = 'block'; // Show dashboard
+        // 5. MDM TAB MANAGEMENT
+        function createOrSwitchTab(app, html) {
+            // Check if tab exists
+            let existingTab = document.getElementById(`tab-${app.id}`);
+            
+            if (existingTab) {
+                switchTab(app.id);
+                // Update content just in case
+                document.getElementById('view-app-detail').innerHTML = html;
+                loadComments(app.id, `comments-area-${app.id}`);
+                return;
+            }
 
-            // Listen for reports
-            db.ref('requests').on('value', (snap) => {
-                const c = document.getElementById('report-list-container');
-                if(!c) return;
-                c.innerHTML = '';
-                const data = snap.val();
-                if(data) {
-                    Object.entries(data).reverse().forEach(([k,v]) => {
-                        const d = new Date(v.date).toLocaleDateString();
-                        const div = document.createElement('div');
-                        div.className = 'report-item';
-                        div.innerHTML = `
-                            <div style="font-size:14px; margin-bottom:4px;">"${v.message}"</div>
-                            <div style="font-size:11px; color:#999;">${d}</div>
-                            <button class="delete-report-btn" onclick="adminDelRep('${k}')">Clear</button>
-                        `;
-                        c.appendChild(div);
-                    });
-                } else {
-                    c.innerHTML = "No reports found.";
+            // Create New Tab
+            const tabBar = document.getElementById('mdm-tabs');
+            const newTab = document.createElement('div');
+            newTab.className = 'tab';
+            newTab.id = `tab-${app.id}`;
+            newTab.innerHTML = `
+                <span>${app.name}</span>
+                <div class="tab-close" onclick="closeTab(event, '${app.id}')">✕</div>
+            `;
+            newTab.onclick = () => switchTab(app.id);
+            tabBar.appendChild(newTab);
+
+            // Inject Content
+            document.getElementById('view-app-detail').innerHTML = html;
+            loadComments(app.id, `comments-area-${app.id}`);
+            
+            // Switch
+            switchTab(app.id);
+        }
+
+        function switchTab(id) {
+            // UI Update
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.getElementById(`tab-${id}`).classList.add('active');
+
+            // View Update
+            if (id === 'home') {
+                document.getElementById('view-home').style.display = 'block';
+                document.getElementById('view-app-detail').style.display = 'none';
+                
+                // Clear URL param when going home
+                const url = new URL(window.location);
+                url.searchParams.delete('id');
+                window.history.replaceState({}, '', url);
+            } else {
+                document.getElementById('view-home').style.display = 'none';
+                document.getElementById('view-app-detail').style.display = 'block';
+                
+                // IMPORTANT: Since content div is reused, we might need to re-render if switching between multiple open app tabs.
+                // For simplicity in this version, we assume the content in #view-app-detail matches the active tab. 
+                // In a perfect system, we'd cache the HTML. 
+                // Retriggering openApp(id) updates the HTML:
+                const app = allApps.find(a => a.id === id);
+                if(app) openApp(id); 
+            }
+        }
+
+        function closeTab(e, id) {
+            e.stopPropagation(); // Prevent click from triggering switchTab
+            const tab = document.getElementById(`tab-${id}`);
+            tab.remove();
+            switchTab('home');
+        }
+
+        function closeMobileOverlay() {
+            document.getElementById('mobile-detail-overlay').classList.remove('open');
+            const url = new URL(window.location);
+            url.searchParams.delete('id');
+            window.history.replaceState({}, '', url);
+        }
+
+        // 6. COMMENTS SYSTEM
+        function loadComments(appId, containerId) {
+            // Handle ID mismatch for mobile vs desktop containers
+            const container = document.getElementById(containerId) || document.getElementById('mobile-comments-area');
+            if(!container) return;
+
+            db.ref('comments/' + appId).on('value', (snap) => {
+                const val = snap.val();
+                if (!val) {
+                    container.innerHTML = `<div style="color:#999; font-style:italic;">No ratings yet.</div>`;
+                    return;
+                }
+                
+                let html = '';
+                Object.values(val).reverse().forEach(c => {
+                    html += `
+                        <div class="review-item">
+                            <div class="review-header">
+                                <span class="review-user">${c.user || 'User'}</span>
+                                <span class="review-date">${new Date(c.date).toLocaleDateString()}</span>
+                            </div>
+                            <div class="review-stars">★★★★★</div>
+                            <div class="review-body">${c.text}</div>
+                        </div>
+                    `;
+                });
+                container.innerHTML = html;
+            });
+        }
+
+        function postComment(appId) {
+            const input = document.getElementById(`comment-input-${appId}`);
+            const text = input.value;
+            if(!text) return alert("Write something first");
+
+            db.ref('comments/' + appId).push({
+                user: "User", // Hardcoded per request
+                text: text,
+                date: Date.now()
+            });
+            input.value = "";
+        }
+
+        // 7. ADMIN SYSTEM
+        function checkAdmin() {
+            if(document.getElementById('admin-pin').value === ADMIN_PIN) {
+                document.getElementById('admin-login').classList.remove('open');
+                document.getElementById('admin-dash').classList.add('open');
+                loadReports();
+            } else {
+                alert("Wrong PIN");
+            }
+        }
+
+        function saveApp() {
+            const id = document.getElementById('n-id').value;
+            if(!id) return alert("ID Required");
+
+            const data = {
+                id: id,
+                name: document.getElementById('n-name').value || "New App",
+                company: document.getElementById('n-comp').value,
+                version: document.getElementById('n-ver').value,
+                scheme: document.getElementById('n-scheme').value,
+                icon: document.getElementById('n-icon').value,
+                added: Date.now()
+            };
+
+            db.ref('apps/' + id).set(data, (e) => {
+                if(e) alert(e.message);
+                else { 
+                    alert("Saved!");
+                    // Clear inputs
+                    document.getElementById('n-id').value = "";
+                    document.getElementById('n-name').value = "";
                 }
             });
         }
 
-        // Global Admin Functions (Attached to window so HTML onClick works)
-        window.adminAddApp = function() {
-            const id = document.getElementById('new-id').value;
-            const name = document.getElementById('new-name').value;
-            if(!id || !name) return alert("ID and Name are required");
-
-            const payload = {
-                id: id,
-                name: name,
-                company: document.getElementById('new-comp').value,
-                scheme: document.getElementById('new-scheme').value,
-                version: document.getElementById('new-ver').value,
-                size: document.getElementById('new-size').value,
-                color: document.getElementById('new-color').value,
-                desc: document.getElementById('new-desc').value,
-                releaseDate: document.getElementById('new-date').value
-            };
-
-            db.ref('apps/' + id).set(payload, (err) => {
-                if(err) alert(err.message);
-                else { alert("App Saved!"); goToRoot(); } // Reload to see changes
+        function renderAdminList(apps) {
+            const list = document.getElementById('admin-app-list');
+            list.innerHTML = '';
+            apps.forEach(app => {
+                const div = document.createElement('div');
+                div.className = 'admin-list-item';
+                div.innerHTML = `
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <img src="${app.icon || ''}" onerror="this.style.display='none'" style="width:30px; height:30px; border-radius:6px;">
+                        <span style="font-weight:600;">${app.name}</span>
+                    </div>
+                    <button class="trash-btn" onclick="deleteApp('${app.id}', '${app.name}')">
+                        <i class="ph ph-trash"></i>
+                    </button>
+                `;
+                list.appendChild(div);
             });
-        };
+        }
 
-        window.adminDelApp = function() {
-            const name = document.getElementById('del-name').value;
-            const target = allApps.find(a => a.name === name);
-            if(target) {
-                if(confirm("Delete " + name + "?")) {
-                    db.ref('apps/' + target.id).remove();
-                    alert("Deleted");
-                }
-            } else {
-                alert("App not found");
+        function deleteApp(id, name) {
+            if(confirm(`Delete ${name}? cannot be undone.`)) {
+                db.ref('apps/' + id).remove();
             }
-        };
+        }
 
-        window.adminDelRep = function(key) {
-            if(confirm("Delete report?")) db.ref('requests/' + key).remove();
-        };
+        function loadReports() {
+            db.ref('requests').on('value', (snap) => {
+                const c = document.getElementById('admin-reports');
+                c.innerHTML = '';
+                const v = snap.val();
+                if(v) {
+                    Object.entries(v).forEach(([k, r]) => {
+                        const d = document.createElement('div');
+                        d.style.padding = "10px";
+                        d.style.borderBottom = "1px solid #eee";
+                        d.innerHTML = `
+                            <div>${r.msg}</div>
+                            <div style="font-size:10px; color:#999; margin-top:5px;">${new Date(r.date).toLocaleDateString()}</div>
+                            <button onclick="db.ref('requests/${k}').remove()" style="font-size:10px; color:red; border:none; background:none; padding:0; margin-top:5px;">Dismiss</button>
+                        `;
+                        c.appendChild(d);
+                    });
+                } else {
+                    c.innerHTML = "No reports.";
+                }
+            });
+        }
+
+        // REPORT MODAL
+        function openReportModal() { document.getElementById('report-modal').style.display = 'flex'; }
+        function sendReport() {
+            const m = document.getElementById('rep-msg').value;
+            if(m) {
+                db.ref('requests').push({ msg: m, date: Date.now() });
+                document.getElementById('report-modal').style.display = 'none';
+                alert("Sent");
+            }
+        }
+
+        // SEARCH
+        function handleSearch(q) {
+            const term = q.toLowerCase();
+            const filtered = allApps.filter(a => a.name.toLowerCase().includes(term));
+            renderHomeLists(filtered);
+        }
 
     </script>
 </body>
