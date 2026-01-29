@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FemDihShop</title>
+    <title>School App Store</title>
 
     <script>
         const urlParams = new URLSearchParams(window.location.search);
@@ -16,88 +16,284 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
     <style>
-        /* =========================================
-           GLOBAL STYLES & RESET
-           ========================================= */
+        /* ================================================================
+           1. RESET & GLOBAL VARIABLES
+           ================================================================
+        */
+        :root {
+            --primary-blue: #3b82f6; /* The specific blue from your screenshot */
+            --primary-blue-hover: #2563eb;
+            --bg-color: #ffffff;
+            --text-main: #1c1c1e;
+            --text-sub: #8e8e93;
+            --border-color: #e5e5ea;
+            --modal-bg: #111111; /* Dark background behind the app window */
+            --table-header-bg: #3b82f6;
+            --table-header-text: #ffffff;
+            --row-hover: #f3f4f6;
+            --danger: #ff3b30;
+            --success: #34c759;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
         body { 
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
             margin: 0; 
             padding: 0;
-            background-color: #ffffff; 
-            color: #1c1c1e; 
-            -webkit-tap-highlight-color: transparent; 
+            background-color: var(--bg-color); /* Default light */
+            color: var(--text-main);
+            transition: background-color 0.3s ease;
+            height: 100vh;
+            overflow: hidden; /* We scroll inside the container */
         }
 
-        /* Prevent horizontal scroll */
-        html, body {
-            overflow-x: hidden;
+        /* ================================================================
+           2. THEME: SCHOOL MDM (The "Img 1" Look)
+           ================================================================
+           This theme mimics the screenshot provided: a floating modal window
+           on a dark background with a table layout.
+        */
+        body.theme-mdm {
+            background-color: var(--modal-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        /* The Main "Window" Container */
+        .mdm-window {
+            background: white;
             width: 100%;
+            max-width: 1100px;
+            height: 90vh;
+            border-radius: 12px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
         }
 
-        /* =========================================
-           HEADER STYLES
-           ========================================= */
-        header { 
-            padding: 0 15px; 
-            border-bottom: 1px solid #e5e5ea; 
-            background: rgba(255, 255, 255, 0.95); 
-            position: sticky; 
-            top: 0; 
-            z-index: 100; 
-            backdrop-filter: blur(20px); 
-            display: flex; 
-            align-items: center; 
-            justify-content: space-between; 
-            height: 50px; 
+        /* MDM Header (Top Bar) */
+        .mdm-header {
+            padding: 15px 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #f0f0f0;
+            background: #fff;
         }
 
-        h1 { 
-            font-size: 18px; 
-            font-weight: 600; 
-            flex-grow: 1; 
-            text-align: center; 
-            margin: 0;
-            letter-spacing: -0.5px;
+        .mdm-title-group {
+            display: flex;
+            align-items: center;
+            gap: 15px;
         }
 
-        /* Navigation Buttons */
-        .nav-btn { 
-            color: #007AFF; 
-            font-size: 16px; 
-            cursor: pointer; 
-            min-width: 60px; 
-            display: flex; 
-            align-items: center; 
-            text-decoration: none; 
-            user-select: none;
+        .mdm-grid-icon {
+            color: var(--primary-blue);
+            font-size: 28px;
         }
 
-        .nav-btn.left { 
-            justify-content: flex-start; 
+        .mdm-title {
+            font-size: 24px;
+            color: #333;
+            font-weight: 500; /* Thin but legible */
         }
 
-        .nav-btn.right { 
-            justify-content: flex-end; 
-            font-weight: 600; 
+        /* Header Controls (Search, Buttons) */
+        .mdm-controls {
+            display: flex;
+            gap: 12px;
+            align-items: center;
         }
 
-        /* Utility class to hide elements without breaking layout */
-        .hidden { 
-            visibility: hidden; 
+        .mdm-search {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            width: 250px;
+            font-size: 14px;
+            color: #555;
+            outline: none;
+        }
+        .mdm-search:focus { border-color: var(--primary-blue); }
+
+        .mdm-btn-outline {
+            border: 1px solid var(--primary-blue);
+            background: white;
+            color: var(--primary-blue);
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 500;
+        }
+        .mdm-btn-outline:hover { background: #eff6ff; }
+
+        .close-circle {
+            background: #eee;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 18px;
+            margin-left: 10px;
+            color: #666;
         }
 
-        /* =========================================
-           VIEW CONTAINERS
-           ========================================= */
-        #app-list-view, 
-        #app-detail-view, 
-        #request-view, 
-        #admin-login-view, 
-        #admin-dashboard-view { 
+        /* The Data Table */
+        .mdm-table-container {
+            flex-grow: 1;
+            overflow-y: auto;
+            background: #fff;
+        }
+
+        table.mdm-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        thead.mdm-thead tr {
+            background-color: var(--primary-blue);
+            color: white;
+            text-align: left;
+        }
+
+        thead.mdm-thead th {
+            padding: 12px 15px;
+            font-weight: 500;
+            font-size: 14px;
+            letter-spacing: 0.3px;
+        }
+
+        tbody.mdm-tbody tr {
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        tbody.mdm-tbody tr:hover {
+            background-color: var(--row-hover);
+        }
+
+        tbody.mdm-tbody td {
+            padding: 12px 15px;
+            vertical-align: middle;
+            color: #444;
+        }
+
+        /* Specific Column Styles */
+        .col-icon img {
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
+            object-fit: cover;
+            border: 1px solid #eee;
+        }
+
+        .col-action {
+            text-align: right;
+        }
+
+        .vpp-btn {
+            background-color: var(--primary-blue);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: background 0.2s;
+        }
+        
+        .vpp-btn:hover {
+            background-color: var(--primary-blue-hover);
+        }
+
+        .vpp-btn.outline {
+            background: transparent;
+            border: 1px solid #ccc;
+            color: #666;
+        }
+        .vpp-btn.outline:hover {
+            border-color: var(--primary-blue);
+            color: var(--primary-blue);
+        }
+
+        /* ================================================================
+           3. CLASSIC THEME (Original Mobile Layout)
+           ================================================================
+           We keep this CSS so the user can switch back if they want.
+           This is hidden when body.theme-mdm is active.
+        */
+        .classic-wrapper { display: block; height: 100%; overflow-y: auto; }
+        body.theme-mdm .classic-wrapper { display: none; }
+        
+        /* Elements that are only visible in MDM theme */
+        .mdm-only { display: none; }
+        body.theme-mdm .mdm-only { display: flex; }
+        
+        /* Standard Header (Classic) */
+        header.classic-header { padding: 0 15px; border-bottom: 1px solid #e5e5ea; background: rgba(255,255,255,0.95); position: sticky; top: 0; z-index: 100; backdrop-filter: blur(20px); display: flex; align-items: center; justify-content: space-between; height: 50px; }
+        body.theme-mdm header.classic-header { display: none; }
+
+        h1.classic-title { font-size: 18px; font-weight: 600; flex-grow: 1; text-align: center; margin: 0; }
+        .nav-btn { color: #007AFF; font-size: 16px; cursor: pointer; min-width: 60px; display: flex; align-items: center; text-decoration: none; user-select: none; }
+        .nav-btn.right { justify-content: flex-end; font-weight: 600; }
+        .hidden { visibility: hidden; }
+
+        /* Classic List Styles */
+        .app-item-classic { display: flex; align-items: center; padding: 12px 15px; border-bottom: 1px solid #efeff4; cursor: pointer; }
+        .list-icon-classic { width: 54px; height: 54px; border-radius: 12px; margin-right: 15px; background-size: cover; background-position: center; background-color: #eee; border: 1px solid rgba(0,0,0,0.1); flex-shrink: 0; }
+        .info-classic { flex-grow: 1; }
+        .title-classic { font-weight: 600; font-size: 16px; margin-bottom: 2px; }
+        .subtitle-classic { color: #8e8e93; font-size: 13px; }
+        .get-btn-classic { background: #f0f0f8; color: #007AFF; font-weight: 700; padding: 6px 18px; border-radius: 16px; border: none; font-size: 13px; cursor: pointer; }
+
+        /* ================================================================
+           4. SHARED VIEWS (Detail, Request, Admin, Settings)
+           ================================================================
+           These views are injected into the main container regardless of theme.
+        */
+        #app-detail-view, #request-view, #admin-login-view, #admin-dashboard-view, #settings-view { 
             padding: 20px; 
-            display: none; /* Hidden by default, JS toggles this */
+            display: none; 
             animation: fadeIn 0.3s ease-in-out;
+            background: #fff;
+            height: 100%;
+            overflow-y: auto;
+        }
+
+        /* If in MDM mode, ensure these views fill the modal correctly */
+        body.theme-mdm #app-detail-view,
+        body.theme-mdm #request-view,
+        body.theme-mdm #admin-login-view,
+        body.theme-mdm #admin-dashboard-view,
+        body.theme-mdm #settings-view {
+            position: absolute;
+            top: 70px; /* Below header */
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 10;
         }
 
         @keyframes fadeIn {
@@ -105,237 +301,116 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Loading Spinner Area */
-        #loading {
-            text-align: center; 
-            padding: 50px; 
-            color: #888;
-            font-size: 14px;
-        }
+        /* Detail View Styles */
+        .hero-icon { width: 110px; height: 110px; border-radius: 24px; margin: 0 auto 20px; background-size: cover; background-position: center; background-color: #eee; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .big-btn { background: #007AFF; color: white; border: none; padding: 14px; border-radius: 14px; font-weight: 600; width: 100%; font-size: 16px; margin-top: 25px; cursor: pointer; display:block; text-align: center; text-decoration: none;}
+        .desc-box { background: #f2f2f7; padding: 20px; border-radius: 14px; margin-top: 25px; }
 
-        /* =========================================
-           APP LIST ITEM STYLES
-           ========================================= */
-        .app-item { 
-            display: flex; 
-            align-items: center; 
-            padding: 12px 0; 
-            border-bottom: 1px solid #efeff4; 
-            cursor: pointer; 
-            transition: background-color 0.2s;
-        }
+        /* Form Styles */
+        input, textarea, select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 12px; box-sizing: border-box; font-size: 14px; background: #f9f9f9; font-family: inherit; }
+        input:focus { outline: none; border-color: var(--primary-blue); background: #fff; }
+        .submit-btn { background: var(--primary-blue); color: white; border: none; padding: 14px; border-radius: 8px; width: 100%; font-weight: 600; font-size: 16px; margin-top: 10px; cursor: pointer; transition: 0.2s; }
+        .submit-btn:hover { opacity: 0.9; }
 
-        .app-item:active {
-            background-color: #f5f5f5;
-        }
+        /* Admin Dashboard Styles */
+        .admin-card { background: white; border: 1px solid #eee; padding: 20px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
+        .admin-section-title { margin-top: 0; margin-bottom: 15px; font-size: 18px; font-weight: 700; display:flex; align-items:center; gap:8px;}
+        
+        .report-item { background: #f9f9f9; border-radius: 8px; padding: 12px; margin-bottom: 10px; border: 1px solid #eee; position: relative; }
+        .report-date { font-size: 11px; color: #999; font-weight: 600; text-transform: uppercase; margin-top: 5px;}
+        .delete-report-btn { position: absolute; right: 10px; top: 10px; background: #ff3b30; color: white; border: none; font-size: 11px; padding: 4px 8px; border-radius: 6px; cursor: pointer; }
 
-        .list-icon { 
-            width: 54px; 
-            height: 54px; 
-            border-radius: 12px; 
-            margin-right: 15px; 
-            background-size: cover; 
-            background-position: center; 
-            background-color: #eee; 
-            border: 1px solid rgba(0,0,0,0.1); 
-            flex-shrink: 0;
-        }
-
-        .info { 
-            flex-grow: 1; 
-            min-width: 0; /* Fixes text overflow in flexbox */
-        }
-
-        .title { 
-            font-weight: 600; 
-            font-size: 16px; 
-            margin-bottom: 3px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .subtitle { 
-            color: #8e8e93; 
-            font-size: 13px; 
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .get-btn { 
-            background: #f0f0f8; 
-            color: #007AFF; 
-            font-weight: 700; 
-            padding: 6px 18px; 
-            border-radius: 16px; 
-            border: none; 
-            font-size: 13px; 
-            cursor: pointer; 
-            margin-left: 10px;
-        }
-
-        /* =========================================
-           DETAIL PAGE STYLES
-           ========================================= */
-        .hero-icon { 
-            width: 110px; 
-            height: 110px; 
-            border-radius: 24px; 
-            margin: 0 auto 20px; 
-            background-size: cover; 
-            background-position: center; 
-            background-color: #eee; 
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
-            border: 1px solid rgba(0,0,0,0.05);
-        }
-
-        .detail-header {
-            text-align: center;
-        }
-
-        .big-btn { 
-            background: #007AFF; 
-            color: white; 
-            border: none; 
-            padding: 14px; 
-            border-radius: 14px; 
-            font-weight: 600; 
-            width: 100%; 
-            font-size: 16px; 
-            margin-top: 25px; 
-            cursor: pointer; 
-            box-shadow: 0 4px 12px rgba(0,122,255,0.3);
-        }
-
-        .big-btn:active {
-            transform: scale(0.98);
-            opacity: 0.9;
-        }
-
-        .desc-box { 
-            background: #f2f2f7; 
-            padding: 20px; 
-            border-radius: 14px; 
-            margin-top: 25px; 
-        }
-
-        /* =========================================
-           FORM & INPUT STYLES
-           ========================================= */
-        input, textarea { 
-            width: 100%; 
-            padding: 12px; 
-            border: 1px solid #ddd; 
-            border-radius: 10px; 
-            margin-bottom: 12px; 
-            box-sizing: border-box; 
-            font-size: 16px; 
-            background: #f9f9f9; 
-            font-family: inherit;
-        }
-
-        input:focus, textarea:focus {
-            outline: none;
-            border-color: #007AFF;
-            background: #fff;
-        }
-
-        .submit-btn { 
-            background: #007AFF; 
-            color: white; 
-            border: none; 
-            padding: 15px; 
-            border-radius: 14px; 
-            width: 100%; 
-            font-weight: 600; 
-            font-size: 16px; 
-            margin-top: 10px; 
-            cursor: pointer; 
-        }
-
-        /* =========================================
-           ADMIN PANEL STYLES
-           ========================================= */
-        .admin-card { 
-            background: white; 
-            border: 1px solid #eee; 
-            padding: 20px; 
-            border-radius: 16px; 
-            margin-bottom: 25px; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05); 
-        }
-
-        .admin-section-title {
-            margin-top: 0;
-            margin-bottom: 15px;
-            font-size: 18px;
-            font-weight: 700;
-        }
-
-        /* Report List Items */
-        .report-item {
-            background: #f9f9f9;
-            border-radius: 8px;
-            padding: 12px;
-            margin-bottom: 10px;
-            border: 1px solid #eee;
-            position: relative;
-        }
-
-        .report-msg {
-            font-size: 15px;
-            color: #333;
-            margin-bottom: 5px;
-            line-height: 1.4;
-        }
-
-        .report-date {
-            font-size: 11px;
-            color: #999;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-
-        .delete-report-btn {
-            position: absolute;
-            right: 10px;
-            top: 10px;
-            background: #ff3b30;
-            color: white;
-            border: none;
-            font-size: 11px;
-            padding: 4px 8px;
-            border-radius: 6px;
-            cursor: pointer;
-        }
+        /* Toggle Switch for Settings */
+        .switch { position: relative; display: inline-block; width: 50px; height: 28px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--primary-blue); }
+        input:checked + .slider:before { transform: translateX(22px); }
+        
+        /* Settings Row */
+        .settings-row { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid #eee; }
+        .settings-label { font-weight: 600; font-size: 16px; }
+        .settings-desc { font-size: 13px; color: #888; margin-top: 4px; }
 
     </style>
 </head>
-<body>
-
-    <header>
-        <div id="btn-left" class="nav-btn left hidden" onclick="goHome()">Back</div>
+<body class="theme-mdm"> <div class="mdm-window mdm-only">
         
-        <h1 id="page-title">FemDihShop</h1>
-        
-        <a id="btn-right" class="nav-btn right" href="#" onclick="goRequest()">Request</a>
-    </header>
+        <div class="mdm-header">
+            <div class="mdm-title-group">
+                <i class="ph ph-squares-four mdm-grid-icon"></i>
+                <div class="mdm-title">Apps</div>
+            </div>
+            
+            <div class="mdm-controls">
+                <input type="text" class="mdm-search" id="mdm-search-input" placeholder="Search" onkeyup="filterApps()">
+                
+                <button class="mdm-btn-outline" onclick="location.reload()">
+                    <i class="ph ph-arrows-clockwise"></i> Refresh
+                </button>
 
-    <div id="loading">Connecting to Database...</div>
+                <button class="mdm-btn-outline">
+                    <i class="ph ph-download-simple"></i> Install All
+                </button>
 
-    <div id="app-list-view"></div>
+                <button class="mdm-btn-outline" style="border:none; padding: 5px;" onclick="goSettings()">
+                    <i class="ph ph-gear" style="font-size: 24px; color:#555"></i>
+                </button>
 
-    <div id="app-detail-view">
-        <div id="detail-icon" class="hero-icon"></div>
-        
-        <div class="detail-header">
-            <h2 id="detail-name" style="margin: 0 0 5px;"></h2>
-            <p id="detail-company" style="color: #8e8e93; margin: 0; font-size: 15px;"></p>
+                <div class="close-circle">
+                    <i class="ph ph-x"></i>
+                </div>
+            </div>
         </div>
 
-        <button id="detail-open-btn" class="big-btn">OPEN APP</button>
-        
+        <div class="mdm-table-container">
+            <table class="mdm-table">
+                <thead class="mdm-thead">
+                    <tr>
+                        <th width="80">App Icon</th>
+                        <th>App Name</th>
+                        <th width="80">Price</th>
+                        <th width="80">Version</th>
+                        <th width="100">File Size</th>
+                        <th width="120">Release Date</th>
+                        <th width="140" style="text-align:right">Action</th>
+                    </tr>
+                </thead>
+                <tbody class="mdm-tbody" id="mdm-table-body">
+                    </tbody>
+            </table>
+            <div id="mdm-loading" style="text-align:center; padding: 50px; color:#888;">
+                Loading Catalog...
+            </div>
+        </div>
+    </div>
+
+
+    <div class="classic-wrapper">
+        <header class="classic-header">
+            <div id="btn-left" class="nav-btn left hidden" onclick="goHome()">Back</div>
+            <h1 id="page-title">FemDihShop</h1>
+            <div style="display:flex; gap:15px; align-items:center;">
+                <i class="ph ph-gear" style="font-size:22px; color:#007AFF; cursor:pointer;" onclick="goSettings()"></i>
+                <div id="btn-right" class="nav-btn right" onclick="goRequest()">Request</div>
+            </div>
+        </header>
+
+        <div id="classic-loading" style="text-align:center; padding:50px; color:#888;">Loading...</div>
+        <div id="app-list-view"></div>
+    </div>
+
+
+    <div id="app-detail-view">
+        <button onclick="goHome()" style="background:none; border:none; color:#007AFF; font-size:16px; cursor:pointer; margin-bottom:10px;">&larr; Back</button>
+        <div id="detail-icon" class="hero-icon"></div>
+        <div style="text-align: center;">
+            <h2 id="detail-name" style="margin: 0 0 5px;"></h2>
+            <p id="detail-company" style="color: #8e8e93; margin: 0; font-size: 15px;"></p>
+            <p id="detail-meta" style="color: #aaa; font-size: 12px; margin-top:5px;"></p>
+        </div>
+        <a id="detail-open-btn" class="big-btn" href="#" target="_blank">OPEN APP</a>
         <div class="desc-box">
             <h3 style="margin:0 0 10px; font-size: 17px;">About</h3>
             <p id="detail-desc" style="line-height:1.5; color:#333; margin:0; font-size: 15px;"></p>
@@ -343,69 +418,99 @@
     </div>
 
     <div id="request-view">
-        <h2 style="margin-top:0">Request an App</h2>
-        <p style="color:#888; margin-bottom:20px; line-height: 1.4;">
-            Can't find your favorite game or app? <br>
-            Let us know and we will try to add it.
-        </p>
-        
-        <label style="font-size:12px; font-weight:700; color:#555; margin-bottom:5px; display:block;">MESSAGE</label>
-        <textarea id="req-msg" rows="6" placeholder="e.g. Please add Fortnite and PUBG Mobile..."></textarea>
-        
+        <button onclick="goHome()" style="background:none; border:none; color:#007AFF; font-size:16px; cursor:pointer; margin-bottom:10px;">&larr; Back</button>
+        <h2 style="margin-top:0">Request App</h2>
+        <p style="color:#888; margin-bottom:20px;">What should we add next?</p>
+        <textarea id="req-msg" rows="6" placeholder="e.g. Please add Fortnite..."></textarea>
         <button class="submit-btn" onclick="sendFeedback()">Send Request</button>
     </div>
 
     <div id="admin-login-view">
+        <button onclick="goHome()" style="background:none; border:none; color:#007AFF; font-size:16px; cursor:pointer; margin-bottom:10px;">&larr; Back</button>
         <div style="text-align: center; margin-top: 60px;">
             <h2 style="margin-bottom: 10px;">Manager Access</h2>
             <p style="color:#888; margin-bottom: 30px;">Restricted Area</p>
-            
-            <input type="password" id="admin-pin" placeholder="ENTER PIN" 
-                   style="text-align:center; letter-spacing: 5px; font-size: 20px; max-width: 200px;">
-            
+            <input type="password" id="admin-pin" placeholder="PIN" style="text-align:center; letter-spacing: 5px; font-size: 20px; max-width: 200px;">
             <button class="submit-btn" onclick="checkLogin()" style="max-width: 200px;">Unlock</button>
         </div>
     </div>
 
     <div id="admin-dashboard-view">
-        <h2 style="margin-top:0; margin-bottom: 20px;">Manager Dashboard</h2>
+        <button onclick="goHome()" style="background:none; border:none; color:#007AFF; font-size:16px; cursor:pointer; margin-bottom:10px;">&larr; Close Admin</button>
+        <h2 style="margin-top:0; margin-bottom: 20px;">Dashboard</h2>
 
         <div class="admin-card">
-            <h3 class="admin-section-title" style="color:#34c759;">+ Add New App</h3>
-            <input id="new-name" placeholder="App Name (e.g. Minecraft)">
-            <input id="new-comp" placeholder="Company (e.g. Mojang)">
-            <input id="new-id" placeholder="App Store ID (Numbers only)">
-            <input id="new-scheme" placeholder="URL Scheme (e.g. minecraft://)">
-            <input id="new-desc" placeholder="Description Text">
-            <input id="new-color" placeholder="Color (#FF0000) or Image URL">
+            <h3 class="admin-section-title" style="color:var(--success);"><i class="ph ph-plus-circle"></i> Add App</h3>
             
-            <button class="submit-btn" style="background:#34c759" onclick="addApp()">Save to Database</button>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                <input id="new-name" placeholder="App Name (Required)">
+                <input id="new-comp" placeholder="Company">
+            </div>
+            
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                <input id="new-id" placeholder="App ID (Required)">
+                <input id="new-scheme" placeholder="URL Scheme (app://)">
+            </div>
+
+            <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px;">
+                <input id="new-ver" placeholder="Version (e.g. 2.4.4)">
+                <input id="new-size" placeholder="Size (e.g. 75.4 M)">
+                <input id="new-price" placeholder="Price (Default: Free)">
+            </div>
+            <label style="font-size:12px; color:#888; margin-left:5px;">Release Date:</label>
+            <input type="date" id="new-date">
+
+            <input id="new-desc" placeholder="Description">
+            <input id="new-color" placeholder="Icon URL or Hex Color">
+            
+            <button class="submit-btn" style="background:var(--success)" onclick="addApp()">Save App</button>
         </div>
 
         <div class="admin-card">
-            <h3 class="admin-section-title" style="color:#007AFF;">Inbox: User Reports</h3>
-            <p style="font-size:13px; color:#888;">Recent requests from users:</p>
-            
-            <div id="admin-reports-list" style="max-height: 300px; overflow-y: auto;">
-                Loading reports...
+            <h3 class="admin-section-title" style="color:var(--primary-blue);"><i class="ph ph-chat-text"></i> User Reports</h3>
+            <div id="admin-reports-list" style="max-height: 200px; overflow-y: auto;">Loading...</div>
+        </div>
+
+        <div class="admin-card" style="border-color: var(--danger);">
+            <h3 class="admin-section-title" style="color:var(--danger);"><i class="ph ph-trash"></i> Delete App</h3>
+            <input id="del-name" placeholder="Exact App Name">
+            <button class="submit-btn" style="background:var(--danger)" onclick="deleteApp()">Delete App</button>
+        </div>
+    </div>
+
+    <div id="settings-view">
+        <button onclick="goHome()" style="background:none; border:none; color:#007AFF; font-size:16px; cursor:pointer; margin-bottom:20px;">&larr; Back</button>
+        <h2>Settings</h2>
+        
+        <div class="admin-card">
+            <div class="settings-row">
+                <div>
+                    <div class="settings-label">School MDM Theme</div>
+                    <div class="settings-desc">Enable the table view style (Like Img 1)</div>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" id="theme-toggle" onchange="toggleTheme()">
+                    <span class="slider"></span>
+                </label>
+            </div>
+
+            <div class="settings-row" onclick="goAdmin()" style="cursor:pointer">
+                <div>
+                    <div class="settings-label" style="color:#007AFF">Admin Access</div>
+                    <div class="settings-desc">Enter PIN to manage apps</div>
+                </div>
+                <i class="ph ph-caret-right" style="color:#ccc"></i>
             </div>
         </div>
 
-        <div class="admin-card" style="border-color: #ff3b30;">
-            <h3 class="admin-section-title" style="color:#ff3b30;">Danger Zone</h3>
-            <p style="font-size:13px; color:#666;">
-                To delete an app, type its <b>exact name</b> below.
-                This action cannot be undone.
-            </p>
-            <input id="del-name" placeholder="Exact App Name">
-            <button class="submit-btn" style="background:#ff3b30" onclick="deleteApp()">Delete App</button>
+        <div style="text-align:center; color:#aaa; font-size:12px; margin-top:50px;">
+            FemDihShop v3.0<br>
+            School Store Edition
         </div>
     </div>
 
     <script>
-        // =========================================
-        // 1. FIREBASE CONFIGURATION
-        // =========================================
+        // --- 1. CONFIGURATION ---
         const firebaseConfig = {
             apiKey: "AIzaSyDGi1smvUpUmw76Qrc0XWLRDDgpfEZAEDA",
             authDomain: "schoolappdownload.firebaseapp.com",
@@ -418,318 +523,271 @@
         };
 
         // Initialize Firebase
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
         
-        // SECURITY CONFIG
-        const ADMIN_PIN = "1234"; // <--- Change this if you want a different password
-
-        // GLOBAL DATA VARIABLES
+        const ADMIN_PIN = "1234"; 
         let myApps = [];
-        let myRequests = [];
 
-        // =========================================
-        // 2. DATA FETCHING (REALTIME)
-        // =========================================
-        
-        // Fetch Apps
+        // --- 2. INITIALIZATION ---
+        // Check local storage for theme preference
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'classic') {
+            document.body.classList.remove('theme-mdm');
+            document.getElementById('theme-toggle').checked = false;
+        } else {
+            // Default is MDM
+            document.body.classList.add('theme-mdm');
+            document.getElementById('theme-toggle').checked = true;
+        }
+
+        // --- 3. DATA FETCHING ---
         db.ref('apps').on('value', (snapshot) => {
             const data = snapshot.val();
-            // Convert the object of objects into an array
             myApps = data ? Object.values(data) : [];
             
-            // Hide loading screen once data is here
-            document.getElementById('loading').style.display = 'none';
+            // Render both views so switching is instant
+            renderMDMTable(myApps);
+            renderClassicList(myApps);
             
-            // Refresh the current view
-            handleRouting();
+            // Hide loading indicators
+            document.getElementById('mdm-loading').style.display = 'none';
+            document.getElementById('classic-loading').style.display = 'none';
         });
 
-        // Fetch Requests (For Admin Panel)
+        // Fetch Reports for Admin
         db.ref('requests').on('value', (snapshot) => {
             const data = snapshot.val();
-            const reportsContainer = document.getElementById('admin-reports-list');
-            reportsContainer.innerHTML = ''; // Clear old list
-
+            const container = document.getElementById('admin-reports-list');
+            container.innerHTML = '';
+            
             if (data) {
-                // Convert to array and reverse so newest are at top
-                const reportsArray = Object.entries(data).reverse(); 
-                
-                reportsArray.forEach(([key, val]) => {
-                    const dateStr = val.date ? new Date(val.date).toLocaleString() : 'Unknown Date';
-                    
-                    // Create HTML element for the report
+                Object.entries(data).reverse().forEach(([key, val]) => {
+                    const date = val.date ? new Date(val.date).toLocaleDateString() : '?';
                     const div = document.createElement('div');
                     div.className = 'report-item';
                     div.innerHTML = `
-                        <div class="report-msg">"${val.message}"</div>
-                        <div class="report-date">${dateStr}</div>
-                        <button class="delete-report-btn" onclick="deleteReport('${key}')">Delete</button>
+                        <div>"${val.message}"</div>
+                        <div class="report-date">${date}</div>
+                        <button class="delete-report-btn" onclick="deleteReport('${key}')">Remove</button>
                     `;
-                    reportsContainer.appendChild(div);
+                    container.appendChild(div);
                 });
             } else {
-                reportsContainer.innerHTML = '<div style="color:#aaa; font-style:italic;">No reports found.</div>';
+                container.innerHTML = '<div style="color:#ccc; font-style:italic">No reports.</div>';
             }
         });
 
-        // =========================================
-        // 3. NAVIGATION & ROUTING
-        // =========================================
-        
-        function handleRouting() {
-            const params = new URLSearchParams(window.location.search);
-            const page = params.get('page');
-            const id = params.get('id');
+        // --- 4. RENDER FUNCTIONS ---
 
-            // 1. Hide everything first
-            const allViews = [
-                'app-list-view', 
-                'app-detail-view', 
-                'request-view', 
-                'admin-login-view', 
-                'admin-dashboard-view'
-            ];
-            allViews.forEach(v => document.getElementById(v).style.display = 'none');
-            
-            // 2. Get Header Elements to toggle them
-            const btnLeft = document.getElementById('btn-left');
-            const btnRight = document.getElementById('btn-right');
-            const title = document.getElementById('page-title');
+        // A. Render the School MDM Table (New Theme)
+        function renderMDMTable(apps) {
+            const tbody = document.getElementById('mdm-table-body');
+            tbody.innerHTML = '';
 
-            // 3. Decide what to show
-            if (page === 'admin') {
-                // Show Admin Login
-                document.getElementById('admin-login-view').style.display = 'block';
-                title.innerText = "Admin Portal";
-                btnLeft.className = "nav-btn left"; // Show Back
-                btnRight.className = "nav-btn right hidden"; // Hide Request
-            } 
-            else if (page === 'request') {
-                // Show Request Form
-                document.getElementById('request-view').style.display = 'block';
-                title.innerText = "Feedback";
-                btnLeft.className = "nav-btn left";
-                btnRight.className = "nav-btn right hidden";
-            }
-            else if (id) {
-                // Show App Details
-                const app = myApps.find(a => a.id === id);
-                if (app) {
-                    document.getElementById('app-detail-view').style.display = 'block';
-                    title.innerText = "Details";
-                    btnLeft.className = "nav-btn left";
-                    btnRight.className = "nav-btn right hidden";
-                    
-                    // Populate Details
-                    document.getElementById('detail-name').innerText = app.name;
-                    document.getElementById('detail-company').innerText = app.company;
-                    document.getElementById('detail-desc').innerText = app.desc;
-                    
-                    // Handle Icon (Image or Color)
-                    const icon = document.getElementById('detail-icon');
-                    if(app.color && app.color.includes('http')) {
-                        icon.style.backgroundImage = `url('${app.color}')`;
-                        icon.style.backgroundColor = 'transparent';
-                    } else {
-                        icon.style.background = app.color;
-                        icon.style.backgroundImage = 'none';
-                    }
-                    
-                    // Button Action
-                    document.getElementById('detail-open-btn').onclick = () => window.location.href = app.scheme;
+            apps.forEach(app => {
+                const tr = document.createElement('tr');
+                
+                // Icon Logic
+                let iconHtml = '';
+                if(app.color && app.color.includes('http')) {
+                    iconHtml = `<img src="${app.color}" alt="icon">`;
+                } else {
+                    // Fallback colored box if no image URL
+                    iconHtml = `<div style="width:42px; height:42px; border-radius:10px; background:${app.color || '#ccc'}; display:flex; align-items:center; justify-content:center; color:white; font-weight:bold; font-size:18px;">${app.name.charAt(0)}</div>`;
                 }
-            } 
-            else {
-                // Show Main Home List
-                document.getElementById('app-list-view').style.display = 'block';
-                title.innerText = "FemDihShop";
-                btnLeft.className = "nav-btn left hidden"; // Hide Back
-                btnRight.className = "nav-btn right"; // Show Request
-                renderList();
-            }
+
+                // Default Values for fields that might be missing in old data
+                const price = app.price || "Free";
+                const ver = app.version || "1.0.0";
+                const size = app.size || "Unknown";
+                const date = app.releaseDate || "2023-01-01";
+
+                // Action Button Logic (VPP Install vs Install)
+                // We'll alternate visuals or just use VPP for "Free" items to match look
+                const btnHtml = `
+                    <button class="vpp-btn" onclick="openAppDetails('${app.id}')">
+                        <i class="ph ph-desktop"></i> VPP Install
+                    </button>
+                `;
+
+                tr.innerHTML = `
+                    <td class="col-icon" onclick="openAppDetails('${app.id}')" style="cursor:pointer">${iconHtml}</td>
+                    <td style="font-weight:500; cursor:pointer" onclick="openAppDetails('${app.id}')">${app.name}</td>
+                    <td style="color:#666">${price}</td>
+                    <td style="color:#666">${ver}</td>
+                    <td style="color:#666">${size}</td>
+                    <td style="color:#888">${date}</td>
+                    <td class="col-action">${btnHtml}</td>
+                `;
+                tbody.appendChild(tr);
+            });
         }
 
-        // Navigation Helper Functions
-        function goHome() { 
-            // Navigate to root URL (removes ?page= or ?id=)
-            window.location.href = window.location.pathname; 
-        }
-        
-        function goRequest() { 
-            // Add ?page=request to URL
-            const url = new URL(window.location);
-            url.searchParams.set('page', 'request');
-            window.history.pushState({}, '', url);
-            handleRouting();
-        }
-
-        // =========================================
-        // 4. RENDERING THE HOME LIST
-        // =========================================
-        function renderList() {
+        // B. Render the Classic Mobile List (Old Theme)
+        function renderClassicList(apps) {
             const container = document.getElementById('app-list-view');
             container.innerHTML = "";
             
-            if(myApps.length === 0) {
-                container.innerHTML = `
-                    <div style='text-align:center; padding:40px; color:#888'>
-                        No apps available.<br><br>
-                        Go to <b>?page=admin</b> to add one.
-                    </div>
-                `;
-                return;
-            }
-
-            myApps.forEach(app => {
+            apps.forEach(app => {
                 const item = document.createElement('div');
-                item.className = 'app-item';
-                
-                // Click event: Go to detail view unless clicking "Open" button
+                item.className = 'app-item-classic';
                 item.onclick = (e) => { 
-                    if(!e.target.className.includes('get-btn')) {
-                        window.location.href = `?id=${app.id}`;
-                    }
+                    if(!e.target.className.includes('get-btn')) openAppDetails(app.id);
                 };
                 
-                // Determine icon style
-                let iconStyle = "";
-                if (app.color && app.color.includes('http')) {
-                    iconStyle = `background-image: url('${app.color}'); background-size: cover;`;
-                } else {
-                    iconStyle = `background: ${app.color};`;
-                }
+                let iconStyle = app.color && app.color.includes('http') 
+                    ? `background-image: url('${app.color}'); background-size: cover;`
+                    : `background: ${app.color || '#999'};`;
                 
                 item.innerHTML = `
-                    <div class="list-icon" style="${iconStyle}"></div>
-                    <div class="info">
-                        <div class="title">${app.name}</div>
-                        <div class="subtitle">${app.company}</div>
+                    <div class="list-icon-classic" style="${iconStyle}"></div>
+                    <div class="info-classic">
+                        <div class="title-classic">${app.name}</div>
+                        <div class="subtitle-classic">${app.company || 'Education'}</div>
                     </div>
-                    <button class="get-btn" onclick="window.location.href='${app.scheme}'">OPEN</button>
+                    <button class="get-btn-classic" onclick="window.location.href='${app.scheme}'">OPEN</button>
                 `;
                 container.appendChild(item);
             });
         }
 
-        // =========================================
-        // 5. USER FUNCTIONS (Request)
-        // =========================================
-        function sendFeedback() {
-            const msgInput = document.getElementById('req-msg');
-            const msg = msgInput.value;
-            
-            if(!msg.trim()) {
-                alert("Please type a message before sending.");
-                return;
+        // --- 5. NAVIGATION & ACTIONS ---
+
+        function toggleTheme() {
+            const isMDM = document.getElementById('theme-toggle').checked;
+            if(isMDM) {
+                document.body.classList.add('theme-mdm');
+                localStorage.setItem('theme', 'mdm');
+            } else {
+                document.body.classList.remove('theme-mdm');
+                localStorage.setItem('theme', 'classic');
             }
-            
-            // Push new request to Firebase
-            db.ref('requests').push({
-                message: msg,
-                date: Date.now()
-            }, (error) => {
-                if (error) {
-                    alert("Error sending request: " + error.message);
-                } else {
-                    alert("Request Sent! Thank you.");
-                    msgInput.value = ""; // Clear box
-                    goHome();
-                }
-            });
         }
 
-        // =========================================
-        // 6. ADMIN FUNCTIONS
-        // =========================================
-        
+        function goHome() {
+            // Hide all overlays
+            ['app-detail-view', 'request-view', 'admin-login-view', 'admin-dashboard-view', 'settings-view']
+                .forEach(id => document.getElementById(id).style.display = 'none');
+        }
+
+        function goSettings() {
+            goHome(); // clear others
+            document.getElementById('settings-view').style.display = 'block';
+        }
+
+        function goRequest() {
+            goHome();
+            document.getElementById('request-view').style.display = 'block';
+        }
+
+        function goAdmin() {
+            goHome();
+            // Check if already logged in (simple session check could go here, but we'll ask PIN)
+            document.getElementById('admin-login-view').style.display = 'block';
+        }
+
+        function openAppDetails(id) {
+            goHome();
+            const app = myApps.find(a => a.id === id);
+            if(!app) return;
+
+            document.getElementById('app-detail-view').style.display = 'block';
+            
+            // Fill Data
+            document.getElementById('detail-name').innerText = app.name;
+            document.getElementById('detail-company').innerText = app.company || "Unknown Developer";
+            document.getElementById('detail-desc').innerText = app.desc || "No description available.";
+            document.getElementById('detail-open-btn').href = app.scheme;
+            
+            // Meta Data for MDM feel
+            const ver = app.version || "1.0.0";
+            const size = app.size || "-- MB";
+            document.getElementById('detail-meta').innerText = `Version ${ver} • ${size}`;
+
+            // Icon
+            const icon = document.getElementById('detail-icon');
+            if(app.color && app.color.includes('http')) {
+                icon.style.backgroundImage = `url('${app.color}')`;
+                icon.style.background = 'none';
+            } else {
+                icon.style.background = app.color || '#999';
+                icon.style.backgroundImage = 'none';
+            }
+        }
+
+        function filterApps() {
+            const query = document.getElementById('mdm-search-input').value.toLowerCase();
+            const filtered = myApps.filter(a => a.name.toLowerCase().includes(query));
+            renderMDMTable(filtered);
+        }
+
+        // --- 6. ADMIN LOGIC ---
+
         function checkLogin() {
-            const input = document.getElementById('admin-pin').value;
-            if (input === ADMIN_PIN) {
-                // Success: Hide Login, Show Dashboard
+            if (document.getElementById('admin-pin').value === ADMIN_PIN) {
                 document.getElementById('admin-login-view').style.display = 'none';
                 document.getElementById('admin-dashboard-view').style.display = 'block';
             } else {
-                alert("Incorrect PIN. Access Denied.");
+                alert("Incorrect PIN");
             }
         }
 
         function addApp() {
-            // 1. Gather values
+            // Gather all inputs
             const name = document.getElementById('new-name').value;
-            const comp = document.getElementById('new-comp').value;
             const id = document.getElementById('new-id').value;
-            const scheme = document.getElementById('new-scheme').value;
-            const desc = document.getElementById('new-desc').value;
-            const color = document.getElementById('new-color').value;
             
-            // 2. Validation
-            if(!name || !id) {
-                alert("Error: Name and App ID are required fields.");
-                return;
-            }
+            if(!name || !id) return alert("Name and ID are required.");
 
-            // 3. Create Object
             const newApp = {
                 name: name,
-                company: comp,
+                company: document.getElementById('new-comp').value,
                 id: id,
-                scheme: scheme,
-                desc: desc,
-                color: color
+                scheme: document.getElementById('new-scheme').value,
+                desc: document.getElementById('new-desc').value,
+                color: document.getElementById('new-color').value,
+                // New Fields
+                version: document.getElementById('new-ver').value || "1.0",
+                size: document.getElementById('new-size').value || "50MB",
+                price: document.getElementById('new-price').value || "Free",
+                releaseDate: document.getElementById('new-date').value || new Date().toISOString().split('T')[0]
             };
-            
-            // 4. Save to Firebase
-            // Using ID as key ensures no duplicates for same App ID
-            db.ref('apps/' + id).set(newApp, (error) => {
-                if (error) {
-                    alert("Database Error: " + error.message);
-                } else {
-                    alert("App Added Successfully!");
-                    // Clear inputs? Optional.
+
+            db.ref('apps/' + id).set(newApp, (err) => {
+                if(err) alert(err.message);
+                else {
+                    alert("App saved!");
                     goHome();
                 }
             });
         }
 
         function deleteApp() {
-            const nameToDelete = document.getElementById('del-name').value;
+            const name = document.getElementById('del-name').value;
+            const app = myApps.find(a => a.name === name);
+            if(!app) return alert("App not found");
             
-            // Find the app object to get its ID
-            const app = myApps.find(a => a.name === nameToDelete);
-            
-            if(!app) {
-                alert("Could not find an app with that exact name.");
-                return;
+            if(confirm("Delete " + name + "?")) {
+                db.ref('apps/' + app.id).remove();
+                alert("Deleted");
+                goHome();
             }
-
-            if(!confirm(`Are you sure you want to delete "${nameToDelete}"?`)) return;
-
-            // Remove from Database
-            db.ref('apps/' + app.id).remove()
-                .then(() => {
-                    alert("App has been deleted.");
-                    document.getElementById('del-name').value = ""; // Clear input
-                    goHome();
-                })
-                .catch(err => alert("Error: " + err.message));
         }
 
-        // Function to delete a specific report from the admin list
+        function sendFeedback() {
+            const msg = document.getElementById('req-msg').value;
+            if(!msg) return alert("Empty message");
+            db.ref('requests').push({ message: msg, date: Date.now() });
+            alert("Sent");
+            goHome();
+        }
+
         function deleteReport(key) {
-            if(!confirm("Remove this report?")) return;
-            
-            db.ref('requests/' + key).remove()
-                .catch(err => alert("Error removing report: " + err.message));
+            if(confirm("Delete this report?")) {
+                db.ref('requests/'+key).remove();
+            }
         }
-
-        // Initial Logic Run
-        handleRouting();
-        
-        // Browser Back Button Support
-        window.onpopstate = handleRouting;
 
     </script>
 </body>
