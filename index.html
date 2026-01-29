@@ -17,97 +17,395 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <style>
-        /* --- STYLES --- */
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; background: #fff; color: #1c1c1e; -webkit-tap-highlight-color: transparent; }
-        
-        /* Header */
-        header { padding: 0 15px; border-bottom: 1px solid #e5e5ea; background: rgba(255,255,255,0.95); position: sticky; top: 0; z-index: 100; backdrop-filter: blur(20px); display: flex; align-items: center; justify-content: space-between; height: 50px; }
-        h1 { font-size: 18px; font-weight: 600; flex-grow: 1; text-align: center; }
-        .nav-btn { color: #007AFF; font-size: 16px; cursor: pointer; min-width: 60px; display: flex; align-items: center; text-decoration: none; }
-        .nav-btn.right { justify-content: flex-end; font-weight: 600; }
-        .hidden { visibility: hidden; }
+        /* =========================================
+           GLOBAL STYLES & RESET
+           ========================================= */
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+            margin: 0; 
+            padding: 0;
+            background-color: #ffffff; 
+            color: #1c1c1e; 
+            -webkit-tap-highlight-color: transparent; 
+        }
 
-        /* Views */
-        #app-list-view, #app-detail-view, #request-view, #admin-login-view, #admin-dashboard-view { padding: 20px; display: none; }
-        
-        /* List Item */
-        .app-item { display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid #efeff4; cursor: pointer; }
-        .list-icon { width: 54px; height: 54px; border-radius: 12px; margin-right: 15px; background-size: cover; background-position: center; background-color: #eee; border: 1px solid rgba(0,0,0,0.1); }
-        .info { flex-grow: 1; }
-        .title { font-weight: 600; font-size: 16px; }
-        .subtitle { color: #8e8e93; font-size: 13px; }
-        .get-btn { background: #f0f0f8; color: #007AFF; font-weight: 700; padding: 6px 18px; border-radius: 16px; border: none; font-size: 13px; cursor: pointer; }
+        /* Prevent horizontal scroll */
+        html, body {
+            overflow-x: hidden;
+            width: 100%;
+        }
 
-        /* Detail View */
-        .hero-icon { width: 110px; height: 110px; border-radius: 24px; margin: 0 auto 20px; background-size: cover; background-position: center; background-color: #eee; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
-        .big-btn { background: #007AFF; color: white; border: none; padding: 14px; border-radius: 14px; font-weight: 600; width: 100%; font-size: 16px; margin-top: 20px; cursor: pointer; }
-        .desc-box { background: #f2f2f7; padding: 20px; border-radius: 14px; margin-top: 25px; }
+        /* =========================================
+           HEADER STYLES
+           ========================================= */
+        header { 
+            padding: 0 15px; 
+            border-bottom: 1px solid #e5e5ea; 
+            background: rgba(255, 255, 255, 0.95); 
+            position: sticky; 
+            top: 0; 
+            z-index: 100; 
+            backdrop-filter: blur(20px); 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            height: 50px; 
+        }
 
-        /* Forms */
-        input, textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 10px; margin-bottom: 10px; box-sizing: border-box; font-size: 16px; background: #f9f9f9; }
-        .submit-btn { background: #007AFF; color: white; border: none; padding: 15px; border-radius: 14px; width: 100%; font-weight: 600; font-size: 16px; margin-top: 10px; cursor: pointer; }
-        .admin-card { background: white; border: 1px solid #eee; padding: 15px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        h1 { 
+            font-size: 18px; 
+            font-weight: 600; 
+            flex-grow: 1; 
+            text-align: center; 
+            margin: 0;
+            letter-spacing: -0.5px;
+        }
+
+        /* Navigation Buttons */
+        .nav-btn { 
+            color: #007AFF; 
+            font-size: 16px; 
+            cursor: pointer; 
+            min-width: 60px; 
+            display: flex; 
+            align-items: center; 
+            text-decoration: none; 
+            user-select: none;
+        }
+
+        .nav-btn.left { 
+            justify-content: flex-start; 
+        }
+
+        .nav-btn.right { 
+            justify-content: flex-end; 
+            font-weight: 600; 
+        }
+
+        /* Utility class to hide elements without breaking layout */
+        .hidden { 
+            visibility: hidden; 
+        }
+
+        /* =========================================
+           VIEW CONTAINERS
+           ========================================= */
+        #app-list-view, 
+        #app-detail-view, 
+        #request-view, 
+        #admin-login-view, 
+        #admin-dashboard-view { 
+            padding: 20px; 
+            display: none; /* Hidden by default, JS toggles this */
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Loading Spinner Area */
+        #loading {
+            text-align: center; 
+            padding: 50px; 
+            color: #888;
+            font-size: 14px;
+        }
+
+        /* =========================================
+           APP LIST ITEM STYLES
+           ========================================= */
+        .app-item { 
+            display: flex; 
+            align-items: center; 
+            padding: 12px 0; 
+            border-bottom: 1px solid #efeff4; 
+            cursor: pointer; 
+            transition: background-color 0.2s;
+        }
+
+        .app-item:active {
+            background-color: #f5f5f5;
+        }
+
+        .list-icon { 
+            width: 54px; 
+            height: 54px; 
+            border-radius: 12px; 
+            margin-right: 15px; 
+            background-size: cover; 
+            background-position: center; 
+            background-color: #eee; 
+            border: 1px solid rgba(0,0,0,0.1); 
+            flex-shrink: 0;
+        }
+
+        .info { 
+            flex-grow: 1; 
+            min-width: 0; /* Fixes text overflow in flexbox */
+        }
+
+        .title { 
+            font-weight: 600; 
+            font-size: 16px; 
+            margin-bottom: 3px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .subtitle { 
+            color: #8e8e93; 
+            font-size: 13px; 
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .get-btn { 
+            background: #f0f0f8; 
+            color: #007AFF; 
+            font-weight: 700; 
+            padding: 6px 18px; 
+            border-radius: 16px; 
+            border: none; 
+            font-size: 13px; 
+            cursor: pointer; 
+            margin-left: 10px;
+        }
+
+        /* =========================================
+           DETAIL PAGE STYLES
+           ========================================= */
+        .hero-icon { 
+            width: 110px; 
+            height: 110px; 
+            border-radius: 24px; 
+            margin: 0 auto 20px; 
+            background-size: cover; 
+            background-position: center; 
+            background-color: #eee; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .detail-header {
+            text-align: center;
+        }
+
+        .big-btn { 
+            background: #007AFF; 
+            color: white; 
+            border: none; 
+            padding: 14px; 
+            border-radius: 14px; 
+            font-weight: 600; 
+            width: 100%; 
+            font-size: 16px; 
+            margin-top: 25px; 
+            cursor: pointer; 
+            box-shadow: 0 4px 12px rgba(0,122,255,0.3);
+        }
+
+        .big-btn:active {
+            transform: scale(0.98);
+            opacity: 0.9;
+        }
+
+        .desc-box { 
+            background: #f2f2f7; 
+            padding: 20px; 
+            border-radius: 14px; 
+            margin-top: 25px; 
+        }
+
+        /* =========================================
+           FORM & INPUT STYLES
+           ========================================= */
+        input, textarea { 
+            width: 100%; 
+            padding: 12px; 
+            border: 1px solid #ddd; 
+            border-radius: 10px; 
+            margin-bottom: 12px; 
+            box-sizing: border-box; 
+            font-size: 16px; 
+            background: #f9f9f9; 
+            font-family: inherit;
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #007AFF;
+            background: #fff;
+        }
+
+        .submit-btn { 
+            background: #007AFF; 
+            color: white; 
+            border: none; 
+            padding: 15px; 
+            border-radius: 14px; 
+            width: 100%; 
+            font-weight: 600; 
+            font-size: 16px; 
+            margin-top: 10px; 
+            cursor: pointer; 
+        }
+
+        /* =========================================
+           ADMIN PANEL STYLES
+           ========================================= */
+        .admin-card { 
+            background: white; 
+            border: 1px solid #eee; 
+            padding: 20px; 
+            border-radius: 16px; 
+            margin-bottom: 25px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05); 
+        }
+
+        .admin-section-title {
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        /* Report List Items */
+        .report-item {
+            background: #f9f9f9;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+            border: 1px solid #eee;
+            position: relative;
+        }
+
+        .report-msg {
+            font-size: 15px;
+            color: #333;
+            margin-bottom: 5px;
+            line-height: 1.4;
+        }
+
+        .report-date {
+            font-size: 11px;
+            color: #999;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .delete-report-btn {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            background: #ff3b30;
+            color: white;
+            border: none;
+            font-size: 11px;
+            padding: 4px 8px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
     </style>
 </head>
 <body>
 
     <header>
         <div id="btn-left" class="nav-btn left hidden" onclick="goHome()">Back</div>
+        
         <h1 id="page-title">FemDihShop</h1>
-        <div id="btn-right" class="nav-btn right" onclick="goRequest()">Request</div>
+        
+        <a id="btn-right" class="nav-btn right" href="#" onclick="goRequest()">Request</a>
     </header>
 
-    <div id="loading" style="text-align:center; padding:50px; color:#888;">Loading...</div>
+    <div id="loading">Connecting to Database...</div>
 
     <div id="app-list-view"></div>
 
     <div id="app-detail-view">
         <div id="detail-icon" class="hero-icon"></div>
-        <h2 id="detail-name" style="text-align:center; margin:0 0 5px;"></h2>
-        <p id="detail-company" style="text-align:center; color:#8e8e93; margin:0;"></p>
+        
+        <div class="detail-header">
+            <h2 id="detail-name" style="margin: 0 0 5px;"></h2>
+            <p id="detail-company" style="color: #8e8e93; margin: 0; font-size: 15px;"></p>
+        </div>
+
         <button id="detail-open-btn" class="big-btn">OPEN APP</button>
+        
         <div class="desc-box">
-            <h3 style="margin:0 0 10px;">About</h3>
-            <p id="detail-desc" style="line-height:1.5; color:#333; margin:0;"></p>
+            <h3 style="margin:0 0 10px; font-size: 17px;">About</h3>
+            <p id="detail-desc" style="line-height:1.5; color:#333; margin:0; font-size: 15px;"></p>
         </div>
     </div>
 
     <div id="request-view">
-        <h2>Request App</h2>
-        <p style="color:#888;">What should we add next?</p>
-        <textarea id="req-msg" rows="5" placeholder="e.g. Please add Fortnite..."></textarea>
+        <h2 style="margin-top:0">Request an App</h2>
+        <p style="color:#888; margin-bottom:20px; line-height: 1.4;">
+            Can't find your favorite game or app? <br>
+            Let us know and we will try to add it.
+        </p>
+        
+        <label style="font-size:12px; font-weight:700; color:#555; margin-bottom:5px; display:block;">MESSAGE</label>
+        <textarea id="req-msg" rows="6" placeholder="e.g. Please add Fortnite and PUBG Mobile..."></textarea>
+        
         <button class="submit-btn" onclick="sendFeedback()">Send Request</button>
     </div>
 
     <div id="admin-login-view">
-        <h2 style="text-align:center; margin-top:50px;">Manager Login</h2>
-        <input type="password" id="admin-pin" placeholder="PIN" style="text-align:center; letter-spacing: 5px;">
-        <button class="submit-btn" onclick="checkLogin()">Unlock</button>
+        <div style="text-align: center; margin-top: 60px;">
+            <h2 style="margin-bottom: 10px;">Manager Access</h2>
+            <p style="color:#888; margin-bottom: 30px;">Restricted Area</p>
+            
+            <input type="password" id="admin-pin" placeholder="ENTER PIN" 
+                   style="text-align:center; letter-spacing: 5px; font-size: 20px; max-width: 200px;">
+            
+            <button class="submit-btn" onclick="checkLogin()" style="max-width: 200px;">Unlock</button>
+        </div>
     </div>
 
     <div id="admin-dashboard-view">
-        <h2>Dashboard</h2>
-        
+        <h2 style="margin-top:0; margin-bottom: 20px;">Manager Dashboard</h2>
+
         <div class="admin-card">
-            <h3>Add New App</h3>
-            <input id="new-name" placeholder="Name (e.g. Minecraft)">
+            <h3 class="admin-section-title" style="color:#34c759;">+ Add New App</h3>
+            <input id="new-name" placeholder="App Name (e.g. Minecraft)">
             <input id="new-comp" placeholder="Company (e.g. Mojang)">
-            <input id="new-id" placeholder="App ID (e.g. 479516143)">
-            <input id="new-scheme" placeholder="Scheme (e.g. minecraft://)">
-            <input id="new-desc" placeholder="Description">
-            <input id="new-color" placeholder="Color Hex (#000) or Image URL">
-            <button class="submit-btn" style="background:#34c759" onclick="addApp()">Save App</button>
+            <input id="new-id" placeholder="App Store ID (Numbers only)">
+            <input id="new-scheme" placeholder="URL Scheme (e.g. minecraft://)">
+            <input id="new-desc" placeholder="Description Text">
+            <input id="new-color" placeholder="Color (#FF0000) or Image URL">
+            
+            <button class="submit-btn" style="background:#34c759" onclick="addApp()">Save to Database</button>
         </div>
 
         <div class="admin-card">
-            <h3 style="color:red">Delete App</h3>
+            <h3 class="admin-section-title" style="color:#007AFF;">Inbox: User Reports</h3>
+            <p style="font-size:13px; color:#888;">Recent requests from users:</p>
+            
+            <div id="admin-reports-list" style="max-height: 300px; overflow-y: auto;">
+                Loading reports...
+            </div>
+        </div>
+
+        <div class="admin-card" style="border-color: #ff3b30;">
+            <h3 class="admin-section-title" style="color:#ff3b30;">Danger Zone</h3>
+            <p style="font-size:13px; color:#666;">
+                To delete an app, type its <b>exact name</b> below.
+                This action cannot be undone.
+            </p>
             <input id="del-name" placeholder="Exact App Name">
-            <button class="submit-btn" style="background:#ff3b30" onclick="deleteApp()">Delete</button>
+            <button class="submit-btn" style="background:#ff3b30" onclick="deleteApp()">Delete App</button>
         </div>
     </div>
 
     <script>
-        // --- 1. YOUR FIREBASE CONFIGURATION ---
+        // =========================================
+        // 1. FIREBASE CONFIGURATION
+        // =========================================
         const firebaseConfig = {
             apiKey: "AIzaSyDGi1smvUpUmw76Qrc0XWLRDDgpfEZAEDA",
             authDomain: "schoolappdownload.firebaseapp.com",
@@ -119,58 +417,105 @@
             measurementId: "G-HVZLQ96B6P"
         };
 
-        // Initialize Firebase (Standard CDN method)
+        // Initialize Firebase
         if (!firebase.apps.length) {
             firebase.initializeApp(firebaseConfig);
         }
         const db = firebase.database();
         
-        // ADMIN PIN CODE (You can change this)
-        const ADMIN_PIN = "1234"; 
+        // SECURITY CONFIG
+        const ADMIN_PIN = "1234"; // <--- Change this if you want a different password
 
+        // GLOBAL DATA VARIABLES
         let myApps = [];
+        let myRequests = [];
 
-        // --- 2. FETCH APPS (Realtime) ---
+        // =========================================
+        // 2. DATA FETCHING (REALTIME)
+        // =========================================
+        
+        // Fetch Apps
         db.ref('apps').on('value', (snapshot) => {
             const data = snapshot.val();
-            // Convert Firebase object to Array
+            // Convert the object of objects into an array
             myApps = data ? Object.values(data) : [];
             
+            // Hide loading screen once data is here
             document.getElementById('loading').style.display = 'none';
-            handleRouting(); // Refresh the screen
+            
+            // Refresh the current view
+            handleRouting();
         });
 
-        // --- 3. PAGE NAVIGATION ---
+        // Fetch Requests (For Admin Panel)
+        db.ref('requests').on('value', (snapshot) => {
+            const data = snapshot.val();
+            const reportsContainer = document.getElementById('admin-reports-list');
+            reportsContainer.innerHTML = ''; // Clear old list
+
+            if (data) {
+                // Convert to array and reverse so newest are at top
+                const reportsArray = Object.entries(data).reverse(); 
+                
+                reportsArray.forEach(([key, val]) => {
+                    const dateStr = val.date ? new Date(val.date).toLocaleString() : 'Unknown Date';
+                    
+                    // Create HTML element for the report
+                    const div = document.createElement('div');
+                    div.className = 'report-item';
+                    div.innerHTML = `
+                        <div class="report-msg">"${val.message}"</div>
+                        <div class="report-date">${dateStr}</div>
+                        <button class="delete-report-btn" onclick="deleteReport('${key}')">Delete</button>
+                    `;
+                    reportsContainer.appendChild(div);
+                });
+            } else {
+                reportsContainer.innerHTML = '<div style="color:#aaa; font-style:italic;">No reports found.</div>';
+            }
+        });
+
+        // =========================================
+        // 3. NAVIGATION & ROUTING
+        // =========================================
+        
         function handleRouting() {
             const params = new URLSearchParams(window.location.search);
             const page = params.get('page');
             const id = params.get('id');
 
-            // Hide all sections first
-            ['app-list-view', 'app-detail-view', 'request-view', 'admin-login-view', 'admin-dashboard-view']
-                .forEach(divId => document.getElementById(divId).style.display = 'none');
+            // 1. Hide everything first
+            const allViews = [
+                'app-list-view', 
+                'app-detail-view', 
+                'request-view', 
+                'admin-login-view', 
+                'admin-dashboard-view'
+            ];
+            allViews.forEach(v => document.getElementById(v).style.display = 'none');
             
-            // Get Header Elements
+            // 2. Get Header Elements to toggle them
             const btnLeft = document.getElementById('btn-left');
             const btnRight = document.getElementById('btn-right');
             const title = document.getElementById('page-title');
 
+            // 3. Decide what to show
             if (page === 'admin') {
-                // Admin Login
+                // Show Admin Login
                 document.getElementById('admin-login-view').style.display = 'block';
-                title.innerText = "Admin Access";
-                btnLeft.className = "nav-btn left";
-                btnRight.className = "nav-btn right hidden";
+                title.innerText = "Admin Portal";
+                btnLeft.className = "nav-btn left"; // Show Back
+                btnRight.className = "nav-btn right hidden"; // Hide Request
             } 
             else if (page === 'request') {
-                // Request Page
+                // Show Request Form
                 document.getElementById('request-view').style.display = 'block';
                 title.innerText = "Feedback";
                 btnLeft.className = "nav-btn left";
                 btnRight.className = "nav-btn right hidden";
             }
             else if (id) {
-                // Detail Page
+                // Show App Details
                 const app = myApps.find(a => a.id === id);
                 if (app) {
                     document.getElementById('app-detail-view').style.display = 'block';
@@ -178,54 +523,78 @@
                     btnLeft.className = "nav-btn left";
                     btnRight.className = "nav-btn right hidden";
                     
-                    // Fill Info
+                    // Populate Details
                     document.getElementById('detail-name').innerText = app.name;
                     document.getElementById('detail-company').innerText = app.company;
                     document.getElementById('detail-desc').innerText = app.desc;
                     
+                    // Handle Icon (Image or Color)
                     const icon = document.getElementById('detail-icon');
                     if(app.color && app.color.includes('http')) {
                         icon.style.backgroundImage = `url('${app.color}')`;
-                        icon.style.background = 'none'; // reset solid color
+                        icon.style.backgroundColor = 'transparent';
                     } else {
                         icon.style.background = app.color;
+                        icon.style.backgroundImage = 'none';
                     }
                     
+                    // Button Action
                     document.getElementById('detail-open-btn').onclick = () => window.location.href = app.scheme;
                 }
             } 
             else {
-                // Main Shop List
+                // Show Main Home List
                 document.getElementById('app-list-view').style.display = 'block';
                 title.innerText = "FemDihShop";
-                btnLeft.className = "nav-btn left hidden";
-                btnRight.className = "nav-btn right";
+                btnLeft.className = "nav-btn left hidden"; // Hide Back
+                btnRight.className = "nav-btn right"; // Show Request
                 renderList();
             }
         }
 
-        // --- 4. FUNCTIONS ---
-        function goHome() { window.location.href = "?"; }
-        function goRequest() { window.location.href = "?page=request"; }
+        // Navigation Helper Functions
+        function goHome() { 
+            // Navigate to root URL (removes ?page= or ?id=)
+            window.location.href = window.location.pathname; 
+        }
+        
+        function goRequest() { 
+            // Add ?page=request to URL
+            const url = new URL(window.location);
+            url.searchParams.set('page', 'request');
+            window.history.pushState({}, '', url);
+            handleRouting();
+        }
 
+        // =========================================
+        // 4. RENDERING THE HOME LIST
+        // =========================================
         function renderList() {
             const container = document.getElementById('app-list-view');
             container.innerHTML = "";
             
             if(myApps.length === 0) {
-                container.innerHTML = "<div style='text-align:center; padding:20px; color:#888'>No apps added yet. Go to /?page=admin to add one.</div>";
+                container.innerHTML = `
+                    <div style='text-align:center; padding:40px; color:#888'>
+                        No apps available.<br><br>
+                        Go to <b>?page=admin</b> to add one.
+                    </div>
+                `;
                 return;
             }
 
             myApps.forEach(app => {
                 const item = document.createElement('div');
                 item.className = 'app-item';
+                
+                // Click event: Go to detail view unless clicking "Open" button
                 item.onclick = (e) => { 
                     if(!e.target.className.includes('get-btn')) {
                         window.location.href = `?id=${app.id}`;
                     }
                 };
                 
+                // Determine icon style
                 let iconStyle = "";
                 if (app.color && app.color.includes('http')) {
                     iconStyle = `background-image: url('${app.color}'); background-size: cover;`;
@@ -245,72 +614,123 @@
             });
         }
 
-        // --- 5. LOGIC & ADMIN ---
+        // =========================================
+        // 5. USER FUNCTIONS (Request)
+        // =========================================
         function sendFeedback() {
-            const msg = document.getElementById('req-msg').value;
-            if(!msg) return alert("Please type something first!");
+            const msgInput = document.getElementById('req-msg');
+            const msg = msgInput.value;
             
+            if(!msg.trim()) {
+                alert("Please type a message before sending.");
+                return;
+            }
+            
+            // Push new request to Firebase
             db.ref('requests').push({
                 message: msg,
                 date: Date.now()
+            }, (error) => {
+                if (error) {
+                    alert("Error sending request: " + error.message);
+                } else {
+                    alert("Request Sent! Thank you.");
+                    msgInput.value = ""; // Clear box
+                    goHome();
+                }
             });
-            alert("Request Sent!");
-            goHome();
         }
 
+        // =========================================
+        // 6. ADMIN FUNCTIONS
+        // =========================================
+        
         function checkLogin() {
             const input = document.getElementById('admin-pin').value;
             if (input === ADMIN_PIN) {
+                // Success: Hide Login, Show Dashboard
                 document.getElementById('admin-login-view').style.display = 'none';
                 document.getElementById('admin-dashboard-view').style.display = 'block';
             } else {
-                alert("Incorrect PIN");
+                alert("Incorrect PIN. Access Denied.");
             }
         }
 
         function addApp() {
+            // 1. Gather values
             const name = document.getElementById('new-name').value;
+            const comp = document.getElementById('new-comp').value;
             const id = document.getElementById('new-id').value;
+            const scheme = document.getElementById('new-scheme').value;
+            const desc = document.getElementById('new-desc').value;
+            const color = document.getElementById('new-color').value;
             
-            if(!name || !id) return alert("Name and App ID are required!");
+            // 2. Validation
+            if(!name || !id) {
+                alert("Error: Name and App ID are required fields.");
+                return;
+            }
 
+            // 3. Create Object
             const newApp = {
                 name: name,
-                company: document.getElementById('new-comp').value,
+                company: comp,
                 id: id,
-                scheme: document.getElementById('new-scheme').value,
-                desc: document.getElementById('new-desc').value,
-                color: document.getElementById('new-color').value
+                scheme: scheme,
+                desc: desc,
+                color: color
             };
             
-            // Save to Firebase using the ID as the Key
+            // 4. Save to Firebase
+            // Using ID as key ensures no duplicates for same App ID
             db.ref('apps/' + id).set(newApp, (error) => {
                 if (error) {
-                    alert("Error: " + error.message);
+                    alert("Database Error: " + error.message);
                 } else {
                     alert("App Added Successfully!");
+                    // Clear inputs? Optional.
                     goHome();
                 }
             });
         }
 
         function deleteApp() {
-            const name = document.getElementById('del-name').value;
-            const app = myApps.find(a => a.name === name);
+            const nameToDelete = document.getElementById('del-name').value;
             
-            if(!app) return alert("App not found. Type the EXACT name.");
-            if(!confirm(`Are you sure you want to delete ${name}?`)) return;
+            // Find the app object to get its ID
+            const app = myApps.find(a => a.name === nameToDelete);
+            
+            if(!app) {
+                alert("Could not find an app with that exact name.");
+                return;
+            }
 
+            if(!confirm(`Are you sure you want to delete "${nameToDelete}"?`)) return;
+
+            // Remove from Database
             db.ref('apps/' + app.id).remove()
                 .then(() => {
-                    alert("App Deleted.");
+                    alert("App has been deleted.");
+                    document.getElementById('del-name').value = ""; // Clear input
                     goHome();
                 })
-                .catch(err => alert(err.message));
+                .catch(err => alert("Error: " + err.message));
         }
 
-        // Initial Run
+        // Function to delete a specific report from the admin list
+        function deleteReport(key) {
+            if(!confirm("Remove this report?")) return;
+            
+            db.ref('requests/' + key).remove()
+                .catch(err => alert("Error removing report: " + err.message));
+        }
+
+        // Initial Logic Run
         handleRouting();
+        
+        // Browser Back Button Support
+        window.onpopstate = handleRouting;
+
     </script>
 </body>
 </html>
