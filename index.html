@@ -3,34 +3,148 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Roblox App Banner Test</title>
+    <title>FemDihShop</title>
 
-    <meta name="apple-itunes-app" content="app-id=431946152">
+    <script>
+        // Get the App ID from the URL (e.g., ?id=431946152)
+        const urlParams = new URLSearchParams(window.location.search);
+        const currentAppId = urlParams.get('id');
+
+        // If we are looking at a specific app, WRITE the meta tag immediately
+        if (currentAppId) {
+            document.write('<meta name="apple-itunes-app" content="app-id=' + currentAppId + '">');
+        }
+    </script>
 
     <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: #f0f0f0;
-            text-align: center;
-            padding: 50px 20px;
-        }
-        .container {
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-        h1 { color: #333; }
-        p { color: #666; }
+        /* Base Styles */
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; background: #fff; color: #1c1c1e; }
+        
+        /* Header */
+        header { padding: 20px; border-bottom: 1px solid #e5e5ea; background: rgba(255,255,255,0.95); position: sticky; top: 0; z-index: 100; backdrop-filter: blur(10px); display: flex; align-items: center; justify-content: space-between;}
+        h1 { margin: 0; font-size: 24px; font-weight: 800; }
+        .back-btn { font-size: 17px; color: #007AFF; text-decoration: none; cursor: pointer; display: none; } /* Hidden by default */
+
+        /* App List (Home View) */
+        #app-list-view { padding: 20px; }
+        .app-item { display: flex; align-items: center; padding-bottom: 20px; margin-bottom: 20px; border-bottom: 1px solid #f2f2f2; cursor: pointer; transition: background 0.2s; }
+        .app-item:active { opacity: 0.6; }
+        
+        .list-icon { width: 60px; height: 60px; border-radius: 14px; margin-right: 15px; background-size: cover; background-position: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .info { flex-grow: 1; }
+        .title { font-size: 17px; font-weight: 600; margin: 0 0 4px 0; }
+        .subtitle { font-size: 13px; color: #8e8e93; margin: 0; }
+        .get-btn { background-color: #f0f0f8; color: #007AFF; font-weight: 700; padding: 6px 20px; border-radius: 20px; font-size: 14px; border: none; pointer-events: none; }
+
+        /* App Detail (Detail View) */
+        #app-detail-view { display: none; padding: 20px; text-align: center; }
+        .hero-icon { width: 120px; height: 120px; border-radius: 26px; margin: 20px auto; background-size: cover; background-position: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+        .detail-title { font-size: 26px; font-weight: 700; margin-bottom: 5px; }
+        .detail-sub { color: #8e8e93; font-size: 15px; margin-bottom: 25px; }
+        .desc { text-align: left; line-height: 1.6; color: #333; background: #f9f9f9; padding: 20px; border-radius: 12px; }
+
+        /* Helpers */
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <h1>Roblox Banner Test</h1>
-        <p>Look at the top of this screen.</p>
-        <p>If you are on an iPhone using Safari, you should see the Roblox Smart App Banner above.</p>
+    <header>
+        <a id="back-button" class="back-btn" href="?">← Back</a>
+        <h1 id="page-title">FemDihShop</h1>
+        <div style="width: 40px;"></div> </header>
+
+    <div id="app-list-view">
+        </div>
+
+    <div id="app-detail-view">
+        <div id="detail-icon" class="hero-icon"></div>
+        <h2 id="detail-name" class="detail-title"></h2>
+        <p id="detail-company" class="detail-sub"></p>
+        <div id="detail-desc" class="desc"></div>
     </div>
 
+    <script>
+        const myApps = [
+            {
+                name: "Roblox",
+                company: "Roblox Corporation",
+                id: "431946152", // The Apple App ID
+                color: "linear-gradient(135deg, #ff4d4d, #f9cb28)", 
+                desc: "Roblox is the ultimate virtual universe that lets you create, share experiences with friends, and be anything you can imagine."
+            },
+            {
+                name: "Minecraft",
+                company: "Mojang",
+                id: "479516143", // The Apple App ID
+                color: "linear-gradient(135deg, #4da6ff, #55dd55)",
+                desc: "Explore infinite worlds and build everything from the simplest of homes to the grandest of castles."
+            },
+            {
+                name: "YouTube",
+                company: "Google LLC",
+                id: "544007664",
+                color: "linear-gradient(135deg, #ff0000, #ff9999)",
+                desc: "Watch your favorite videos, channels, and playlists wherever you are."
+            }
+        ];
+
+        // =========== 3. THE LOGIC =========== 
+        
+        const listView = document.getElementById('app-list-view');
+        const detailView = document.getElementById('app-detail-view');
+        const backBtn = document.getElementById('back-button');
+        const pageTitle = document.getElementById('page-title');
+
+        // Check if we are in "Detail Mode" (URL has ?id=...)
+        const params = new URLSearchParams(window.location.search);
+        const activeId = params.get('id');
+
+        if (activeId) {
+            // --- DETAIL MODE ---
+            const app = myApps.find(a => a.id === activeId);
+            
+            if (app) {
+                // Hide List, Show Detail
+                listView.classList.add('hidden');
+                detailView.style.display = 'block';
+                backBtn.style.display = 'block';
+                pageTitle.innerText = "Details";
+
+                // Fill Info
+                document.getElementById('detail-name').innerText = app.name;
+                document.getElementById('detail-company').innerText = app.company;
+                document.getElementById('detail-desc').innerText = app.desc;
+                document.getElementById('detail-icon').style.background = app.color;
+            }
+        } else {
+            // --- LIST MODE (HOME) ---
+            renderList();
+        }
+
+        function renderList() {
+            listView.innerHTML = ""; // Clear existing
+            
+            myApps.forEach(app => {
+                // Create the HTML for each item
+                const item = document.createElement('div');
+                item.className = 'app-item';
+                item.onclick = () => {
+                    // When clicked, reload page with ?id=XYZ to trigger the banner
+                    window.location.href = `?id=${app.id}`;
+                };
+
+                item.innerHTML = `
+                    <div class="list-icon" style="background: ${app.color}"></div>
+                    <div class="info">
+                        <div class="title">${app.name}</div>
+                        <div class="subtitle">${app.company}</div>
+                    </div>
+                    <button class="get-btn">OPEN</button>
+                `;
+                listView.appendChild(item);
+            });
+        }
+    </script>
 </body>
 </html>
