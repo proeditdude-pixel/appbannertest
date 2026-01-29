@@ -24,18 +24,30 @@
            ================================================================
         */
         :root {
-            --primary-blue: #3b82f6; /* The specific blue from your screenshot */
+            /* The Primary Blue is pulled directly from the MDM screenshot 
+               to ensure 100% visual accuracy.
+            */
+            --primary-blue: #3b82f6; 
             --primary-blue-hover: #2563eb;
+            
+            /* Backgrounds */
             --bg-color: #ffffff;
+            --modal-bg: #111111; /* Dark background behind the app window */
+            
+            /* Text Colors */
             --text-main: #1c1c1e;
             --text-sub: #8e8e93;
+            
+            /* Borders & UI Elements */
             --border-color: #e5e5ea;
-            --modal-bg: #111111; /* Dark background behind the app window */
             --table-header-bg: #3b82f6;
             --table-header-text: #ffffff;
             --row-hover: #f3f4f6;
+            
+            /* Status Colors */
             --danger: #ff3b30;
             --success: #34c759;
+            --warning: #ffcc00;
         }
 
         * {
@@ -68,7 +80,9 @@
             padding: 20px;
         }
 
-        /* The Main "Window" Container */
+        /* The Main "Window" Container 
+           This represents the white box floating in the center of the screen
+        */
         .mdm-window {
             background: white;
             width: 100%;
@@ -90,6 +104,8 @@
             justify-content: space-between;
             border-bottom: 1px solid #f0f0f0;
             background: #fff;
+            height: 70px;
+            flex-shrink: 0;
         }
 
         .mdm-title-group {
@@ -107,6 +123,7 @@
             font-size: 24px;
             color: #333;
             font-weight: 500; /* Thin but legible */
+            letter-spacing: -0.5px;
         }
 
         /* Header Controls (Search, Buttons) */
@@ -124,6 +141,7 @@
             font-size: 14px;
             color: #555;
             outline: none;
+            transition: border 0.2s;
         }
         .mdm-search:focus { border-color: var(--primary-blue); }
 
@@ -139,9 +157,11 @@
             align-items: center;
             gap: 6px;
             font-weight: 500;
+            transition: background 0.2s;
         }
         .mdm-btn-outline:hover { background: #eff6ff; }
 
+        /* The little 'x' circle in top right of screenshot */
         .close-circle {
             background: #eee;
             width: 32px;
@@ -154,13 +174,16 @@
             font-size: 18px;
             margin-left: 10px;
             color: #666;
+            transition: background 0.2s;
         }
+        .close-circle:hover { background: #ddd; }
 
-        /* The Data Table */
+        /* The Data Table Container */
         .mdm-table-container {
             flex-grow: 1;
             overflow-y: auto;
             background: #fff;
+            position: relative;
         }
 
         table.mdm-table {
@@ -169,21 +192,27 @@
             font-size: 14px;
         }
 
+        /* Table Header Blue Strip */
         thead.mdm-thead tr {
             background-color: var(--primary-blue);
             color: white;
             text-align: left;
+            position: sticky;
+            top: 0;
+            z-index: 5;
         }
 
         thead.mdm-thead th {
-            padding: 12px 15px;
+            padding: 14px 15px;
             font-weight: 500;
             font-size: 14px;
             letter-spacing: 0.3px;
         }
 
+        /* Table Body Rows */
         tbody.mdm-tbody tr {
             border-bottom: 1px solid #f0f0f0;
+            transition: background 0.1s;
         }
         
         tbody.mdm-tbody tr:hover {
@@ -209,6 +238,7 @@
             text-align: right;
         }
 
+        /* The VPP Install Button */
         .vpp-btn {
             background-color: var(--primary-blue);
             color: white;
@@ -222,16 +252,19 @@
             align-items: center;
             gap: 6px;
             transition: background 0.2s;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
         }
         
         .vpp-btn:hover {
             background-color: var(--primary-blue-hover);
         }
 
+        /* Outline variant if needed */
         .vpp-btn.outline {
             background: transparent;
             border: 1px solid #ccc;
             color: #666;
+            box-shadow: none;
         }
         .vpp-btn.outline:hover {
             border-color: var(--primary-blue);
@@ -241,7 +274,7 @@
         /* ================================================================
            3. CLASSIC THEME (Original Mobile Layout)
            ================================================================
-           We keep this CSS so the user can switch back if they want.
+           We keep this CSS so the user can switch back via Settings if they want.
            This is hidden when body.theme-mdm is active.
         */
         .classic-wrapper { display: block; height: 100%; overflow-y: auto; }
@@ -493,18 +526,10 @@
                     <span class="slider"></span>
                 </label>
             </div>
-
-            <div class="settings-row" onclick="goAdmin()" style="cursor:pointer">
-                <div>
-                    <div class="settings-label" style="color:#007AFF">Admin Access</div>
-                    <div class="settings-desc">Enter PIN to manage apps</div>
-                </div>
-                <i class="ph ph-caret-right" style="color:#ccc"></i>
             </div>
-        </div>
 
         <div style="text-align:center; color:#aaa; font-size:12px; margin-top:50px;">
-            FemDihShop v3.0<br>
+            FemDihShop v3.5<br>
             School Store Edition
         </div>
     </div>
@@ -529,17 +554,34 @@
         const ADMIN_PIN = "1234"; 
         let myApps = [];
 
-        // --- 2. INITIALIZATION ---
-        // Check local storage for theme preference
-        const savedTheme = localStorage.getItem('theme');
-        if (savedTheme === 'classic') {
-            document.body.classList.remove('theme-mdm');
-            document.getElementById('theme-toggle').checked = false;
-        } else {
-            // Default is MDM
-            document.body.classList.add('theme-mdm');
-            document.getElementById('theme-toggle').checked = true;
+        // --- 2. INITIALIZATION & ROUTING ---
+        
+        // This function handles what screen to show based on the URL
+        function handleRouting() {
+            const params = new URLSearchParams(window.location.search);
+            const page = params.get('page');
+            
+            // Check for specific "page=admin" parameter
+            if (page === 'admin') {
+                hideAll();
+                document.getElementById('admin-login-view').style.display = 'block';
+                return; // Stop here, don't load other views
+            }
+
+            // Normal Flow
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'classic') {
+                document.body.classList.remove('theme-mdm');
+                document.getElementById('theme-toggle').checked = false;
+            } else {
+                // Default is MDM
+                document.body.classList.add('theme-mdm');
+                document.getElementById('theme-toggle').checked = true;
+            }
         }
+
+        // Call routing on load
+        window.addEventListener('load', handleRouting);
 
         // --- 3. DATA FETCHING ---
         db.ref('apps').on('value', (snapshot) => {
@@ -604,7 +646,6 @@
                 const date = app.releaseDate || "2023-01-01";
 
                 // Action Button Logic (VPP Install vs Install)
-                // We'll alternate visuals or just use VPP for "Free" items to match look
                 const btnHtml = `
                     <button class="vpp-btn" onclick="openAppDetails('${app.id}')">
                         <i class="ph ph-desktop"></i> VPP Install
@@ -664,31 +705,34 @@
                 localStorage.setItem('theme', 'classic');
             }
         }
-
-        function goHome() {
-            // Hide all overlays
+        
+        function hideAll() {
             ['app-detail-view', 'request-view', 'admin-login-view', 'admin-dashboard-view', 'settings-view']
                 .forEach(id => document.getElementById(id).style.display = 'none');
         }
 
+        function goHome() {
+            hideAll();
+            // Remove ?page=admin from URL if present without reloading
+            const url = new URL(window.location);
+            if(url.searchParams.has('page')) {
+                url.searchParams.delete('page');
+                window.history.pushState({}, '', url);
+            }
+        }
+
         function goSettings() {
-            goHome(); // clear others
+            hideAll();
             document.getElementById('settings-view').style.display = 'block';
         }
 
         function goRequest() {
-            goHome();
+            hideAll();
             document.getElementById('request-view').style.display = 'block';
         }
 
-        function goAdmin() {
-            goHome();
-            // Check if already logged in (simple session check could go here, but we'll ask PIN)
-            document.getElementById('admin-login-view').style.display = 'block';
-        }
-
         function openAppDetails(id) {
-            goHome();
+            hideAll();
             const app = myApps.find(a => a.id === id);
             if(!app) return;
 
