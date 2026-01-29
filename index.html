@@ -13,48 +13,40 @@
         }
     </script>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <style>
-        /* --- GLOBAL STYLES --- */
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; background: #fff; color: #1c1c1e; -webkit-tap-highlight-color: transparent; }
+        /* --- STYLES --- */
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; background: #fff; color: #1c1c1e; -webkit-tap-highlight-color: transparent; }
         
-        /* HEADER */
+        /* Header */
         header { padding: 0 15px; border-bottom: 1px solid #e5e5ea; background: rgba(255,255,255,0.95); position: sticky; top: 0; z-index: 100; backdrop-filter: blur(20px); display: flex; align-items: center; justify-content: space-between; height: 50px; }
-        h1 { font-size: 18px; font-weight: 600; text-align: center; flex-grow: 1; }
-        .nav-btn { color: #007AFF; font-size: 16px; text-decoration: none; cursor: pointer; min-width: 60px; display: flex; align-items: center; }
-        .nav-btn.left { justify-content: flex-start; }
+        h1 { font-size: 18px; font-weight: 600; flex-grow: 1; text-align: center; }
+        .nav-btn { color: #007AFF; font-size: 16px; cursor: pointer; min-width: 60px; display: flex; align-items: center; text-decoration: none; }
         .nav-btn.right { justify-content: flex-end; font-weight: 600; }
         .hidden { visibility: hidden; }
 
-        /* LIST VIEW */
-        #app-list-view { padding-bottom: 40px; }
-        .app-item { display: flex; align-items: center; padding: 12px 20px; border-bottom: 1px solid #efeff4; cursor: pointer; transition: background 0.2s; }
-        .app-item:active { background-color: #f2f2f2; }
-        .list-icon { width: 54px; height: 54px; border-radius: 12px; margin-right: 15px; background-size: cover; background-position: center; border: 1px solid rgba(0,0,0,0.1); flex-shrink: 0; }
-        .info { flex-grow: 1; min-width: 0; }
-        .title { font-size: 16px; font-weight: 600; margin-bottom: 2px; }
-        .subtitle { font-size: 13px; color: #8e8e93; }
-        .get-btn { background-color: #f0f0f8; color: #007AFF; font-weight: 700; padding: 6px 18px; border-radius: 16px; font-size: 13px; border: none; cursor: pointer; }
-
-        /* DETAIL VIEW */
-        #app-detail-view { display: none; padding: 20px; text-align: center; }
-        .hero-icon { width: 110px; height: 110px; border-radius: 24px; margin: 10px auto 20px; background-size: cover; background-position: center; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border: 1px solid rgba(0,0,0,0.05); }
-        .big-open-btn { background-color: #007AFF; color: white; border: none; padding: 14px 0; border-radius: 14px; font-weight: 600; font-size: 16px; margin-top: 25px; width: 100%; }
-        .desc-box { background: #f2f2f7; padding: 20px; border-radius: 14px; margin-top: 25px; text-align: left; }
-
-        /* REQUEST & ADMIN FORMS */
-        #request-view, #admin-login-view, #admin-dashboard-view { display: none; padding: 20px; }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; font-size: 13px; font-weight: 600; color: #666; margin-bottom: 5px; }
-        input, textarea, select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 10px; font-size: 16px; box-sizing: border-box; background: #f9f9f9; }
-        .submit-btn { background-color: #007AFF; color: white; border: none; padding: 15px; border-radius: 14px; font-weight: 600; font-size: 16px; width: 100%; cursor: pointer; margin-top: 10px; }
-        .danger-btn { background-color: #ff3b30; margin-top: 5px; font-size: 12px; padding: 5px 10px; border-radius: 6px; color: white; border:none; cursor: pointer;}
+        /* Views */
+        #app-list-view, #app-detail-view, #request-view, #admin-login-view, #admin-dashboard-view { padding: 20px; display: none; }
         
-        /* Admin Card Style */
+        /* List Item */
+        .app-item { display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid #efeff4; cursor: pointer; }
+        .list-icon { width: 54px; height: 54px; border-radius: 12px; margin-right: 15px; background-size: cover; background-position: center; background-color: #eee; border: 1px solid rgba(0,0,0,0.1); }
+        .info { flex-grow: 1; }
+        .title { font-weight: 600; font-size: 16px; }
+        .subtitle { color: #8e8e93; font-size: 13px; }
+        .get-btn { background: #f0f0f8; color: #007AFF; font-weight: 700; padding: 6px 18px; border-radius: 16px; border: none; font-size: 13px; cursor: pointer; }
+
+        /* Detail View */
+        .hero-icon { width: 110px; height: 110px; border-radius: 24px; margin: 0 auto 20px; background-size: cover; background-position: center; background-color: #eee; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .big-btn { background: #007AFF; color: white; border: none; padding: 14px; border-radius: 14px; font-weight: 600; width: 100%; font-size: 16px; margin-top: 20px; cursor: pointer; }
+        .desc-box { background: #f2f2f7; padding: 20px; border-radius: 14px; margin-top: 25px; }
+
+        /* Forms */
+        input, textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 10px; margin-bottom: 10px; box-sizing: border-box; font-size: 16px; background: #f9f9f9; }
+        .submit-btn { background: #007AFF; color: white; border: none; padding: 15px; border-radius: 14px; width: 100%; font-weight: 600; font-size: 16px; margin-top: 10px; cursor: pointer; }
         .admin-card { background: white; border: 1px solid #eee; padding: 15px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-        .req-item { padding: 10px; border-bottom: 1px solid #eee; font-size: 14px; color: #333; }
-        .req-time { font-size: 11px; color: #999; display: block; margin-top: 4px; }
     </style>
 </head>
 <body>
@@ -71,213 +63,254 @@
 
     <div id="app-detail-view">
         <div id="detail-icon" class="hero-icon"></div>
-        <h2 id="detail-name" style="margin: 0 0 5px;"></h2>
-        <p id="detail-company" style="color: #8e8e93; margin: 0; font-size: 15px;"></p>
-        <button id="detail-open-btn" class="big-open-btn">OPEN APP</button>
+        <h2 id="detail-name" style="text-align:center; margin:0 0 5px;"></h2>
+        <p id="detail-company" style="text-align:center; color:#8e8e93; margin:0;"></p>
+        <button id="detail-open-btn" class="big-btn">OPEN APP</button>
         <div class="desc-box">
-            <h3 style="margin:0 0 10px; font-size:17px;">About</h3>
-            <p id="detail-desc" style="line-height: 1.5; color: #333; margin: 0; font-size: 15px;"></p>
+            <h3 style="margin:0 0 10px;">About</h3>
+            <p id="detail-desc" style="line-height:1.5; color:#333; margin:0;"></p>
         </div>
     </div>
 
     <div id="request-view">
-        <h2 style="margin-top:0">Request an App</h2>
-        <p style="color:#888; margin-bottom:20px">Tell us what to add next.</p>
-        <textarea id="req-msg" rows="5" placeholder="e.g. Please add Minecraft..."></textarea>
+        <h2>Request App</h2>
+        <p style="color:#888;">What should we add next?</p>
+        <textarea id="req-msg" rows="5" placeholder="e.g. Please add Fortnite..."></textarea>
         <button class="submit-btn" onclick="sendFeedback()">Send Request</button>
     </div>
 
     <div id="admin-login-view">
         <h2 style="text-align:center; margin-top:50px;">Manager Login</h2>
-        <input type="password" id="admin-pin" placeholder="Enter PIN" style="text-align:center; letter-spacing: 5px;">
+        <input type="password" id="admin-pin" placeholder="PIN" style="text-align:center; letter-spacing: 5px;">
         <button class="submit-btn" onclick="checkLogin()">Unlock</button>
     </div>
 
     <div id="admin-dashboard-view">
-        <h2 style="margin-top:0">Manager Dashboard</h2>
-
+        <h2>Dashboard</h2>
+        
         <div class="admin-card">
-            <h3 style="margin-top:0">Add New App</h3>
-            <div class="form-group"><input id="new-name" placeholder="Name (e.g. Fortnite)"></div>
-            <div class="form-group"><input id="new-comp" placeholder="Company (e.g. Epic Games)"></div>
-            <div class="form-group"><input id="new-id" placeholder="App Store ID (e.g. 123456)"></div>
-            <div class="form-group"><input id="new-scheme" placeholder="Scheme (e.g. fortnite://)"></div>
-            <div class="form-group"><input id="new-desc" placeholder="Description"></div>
-            <div class="form-group"><input id="new-color" placeholder="Color Hex or Image URL"></div>
-            <button class="submit-btn" style="background:#34c759" onclick="addAppToDb()">Save App</button>
+            <h3>Add New App</h3>
+            <input id="new-name" placeholder="Name (e.g. Minecraft)">
+            <input id="new-comp" placeholder="Company (e.g. Mojang)">
+            <input id="new-id" placeholder="App ID (e.g. 479516143)">
+            <input id="new-scheme" placeholder="Scheme (e.g. minecraft://)">
+            <input id="new-desc" placeholder="Description">
+            <input id="new-color" placeholder="Color Hex (#000) or Image URL">
+            <button class="submit-btn" style="background:#34c759" onclick="addApp()">Save App</button>
         </div>
 
         <div class="admin-card">
-            <h3 style="margin-top:0">User Requests</h3>
-            <div id="request-list">Loading requests...</div>
-        </div>
-
-        <div class="admin-card">
-            <h3 style="margin-top:0; color:red;">Danger Zone</h3>
-            <p style="font-size:13px; color:#666;">Delete an app by typing its exact name below.</p>
+            <h3 style="color:red">Delete App</h3>
             <input id="del-name" placeholder="Exact App Name">
-            <button class="submit-btn" style="background:#ff3b30" onclick="deleteAppFromDb()">Delete App</button>
+            <button class="submit-btn" style="background:#ff3b30" onclick="deleteApp()">Delete</button>
         </div>
     </div>
 
     <script>
-        // --- CONFIGURATION ---
-        const SUPABASE_URL = 'https://nwfguznxmpbgdndrvsrt.supabase.co';
-        const SUPABASE_ANON_KEY = 'EyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im53Zmd1em54bXBiZ2RuZHJ2c3J0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk2OTE1MzksImV4cCI6MjA4NTI2NzUzOX0.5q14Qo2lqmq32ZcmTHmR_qvwSVEif07E7R-uXsMIaq8';
-        const ADMIN_PIN = "1234"; // <--- CHANGE THIS PIN CODE
+        // --- 1. YOUR FIREBASE CONFIGURATION ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyDGi1smvUpUmw76Qrc0XWLRDDgpfEZAEDA",
+            authDomain: "schoolappdownload.firebaseapp.com",
+            databaseURL: "https://schoolappdownload-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "schoolappdownload",
+            storageBucket: "schoolappdownload.firebasestorage.app",
+            messagingSenderId: "386507255292",
+            appId: "1:386507255292:web:c20e841b39538c43251679",
+            measurementId: "G-HVZLQ96B6P"
+        };
 
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        // Initialize Firebase (Standard CDN method)
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const db = firebase.database();
+        
+        // ADMIN PIN CODE (You can change this)
+        const ADMIN_PIN = "1234"; 
+
         let myApps = [];
 
-        // --- INIT ---
-        async function init() {
-            const { data } = await supabase.from('apps').select('*');
-            if (data) myApps = data;
+        // --- 2. FETCH APPS (Realtime) ---
+        db.ref('apps').on('value', (snapshot) => {
+            const data = snapshot.val();
+            // Convert Firebase object to Array
+            myApps = data ? Object.values(data) : [];
+            
             document.getElementById('loading').style.display = 'none';
-            handleRouting();
-        }
+            handleRouting(); // Refresh the screen
+        });
 
-        // --- ROUTING ---
+        // --- 3. PAGE NAVIGATION ---
         function handleRouting() {
             const params = new URLSearchParams(window.location.search);
             const page = params.get('page');
             const id = params.get('id');
 
-            // Hide All
-            const views = ['app-list-view', 'app-detail-view', 'request-view', 'admin-login-view', 'admin-dashboard-view'];
-            views.forEach(v => document.getElementById(v).style.display = 'none');
+            // Hide all sections first
+            ['app-list-view', 'app-detail-view', 'request-view', 'admin-login-view', 'admin-dashboard-view']
+                .forEach(divId => document.getElementById(divId).style.display = 'none');
             
-            // Header Elements
+            // Get Header Elements
             const btnLeft = document.getElementById('btn-left');
             const btnRight = document.getElementById('btn-right');
             const title = document.getElementById('page-title');
 
             if (page === 'admin') {
-                // ADMIN LOGIN
+                // Admin Login
                 document.getElementById('admin-login-view').style.display = 'block';
                 title.innerText = "Admin Access";
                 btnLeft.className = "nav-btn left";
                 btnRight.className = "nav-btn right hidden";
             } 
             else if (page === 'request') {
-                // USER REQUEST
+                // Request Page
                 document.getElementById('request-view').style.display = 'block';
                 title.innerText = "Feedback";
                 btnLeft.className = "nav-btn left";
                 btnRight.className = "nav-btn right hidden";
-            } 
+            }
             else if (id) {
-                // DETAIL PAGE
-                const app = myApps.find(a => a.app_store_id === id);
+                // Detail Page
+                const app = myApps.find(a => a.id === id);
                 if (app) {
                     document.getElementById('app-detail-view').style.display = 'block';
                     title.innerText = "Details";
                     btnLeft.className = "nav-btn left";
                     btnRight.className = "nav-btn right hidden";
                     
-                    // Populate
+                    // Fill Info
                     document.getElementById('detail-name').innerText = app.name;
                     document.getElementById('detail-company').innerText = app.company;
-                    document.getElementById('detail-desc').innerText = app.description;
+                    document.getElementById('detail-desc').innerText = app.desc;
+                    
                     const icon = document.getElementById('detail-icon');
-                    icon.style.background = app.color.includes('http') ? `url('${app.color}') center/cover` : app.color;
+                    if(app.color && app.color.includes('http')) {
+                        icon.style.backgroundImage = `url('${app.color}')`;
+                        icon.style.background = 'none'; // reset solid color
+                    } else {
+                        icon.style.background = app.color;
+                    }
+                    
                     document.getElementById('detail-open-btn').onclick = () => window.location.href = app.scheme;
                 }
             } 
             else {
-                // HOME LIST
+                // Main Shop List
                 document.getElementById('app-list-view').style.display = 'block';
                 title.innerText = "FemDihShop";
                 btnLeft.className = "nav-btn left hidden";
-                btnRight.className = "nav-btn right"; // Show Request button
+                btnRight.className = "nav-btn right";
                 renderList();
             }
         }
 
+        // --- 4. FUNCTIONS ---
         function goHome() { window.location.href = "?"; }
         function goRequest() { window.location.href = "?page=request"; }
 
         function renderList() {
             const container = document.getElementById('app-list-view');
             container.innerHTML = "";
+            
+            if(myApps.length === 0) {
+                container.innerHTML = "<div style='text-align:center; padding:20px; color:#888'>No apps added yet. Go to /?page=admin to add one.</div>";
+                return;
+            }
+
             myApps.forEach(app => {
                 const item = document.createElement('div');
                 item.className = 'app-item';
-                item.onclick = (e) => { if(!e.target.className.includes('get-btn')) window.location.href = `?id=${app.app_store_id}`; };
+                item.onclick = (e) => { 
+                    if(!e.target.className.includes('get-btn')) {
+                        window.location.href = `?id=${app.id}`;
+                    }
+                };
                 
-                const iconStyle = app.color.includes('http') ? `background-image:url('${app.color}')` : `background:${app.color}`;
+                let iconStyle = "";
+                if (app.color && app.color.includes('http')) {
+                    iconStyle = `background-image: url('${app.color}'); background-size: cover;`;
+                } else {
+                    iconStyle = `background: ${app.color};`;
+                }
+                
                 item.innerHTML = `
                     <div class="list-icon" style="${iconStyle}"></div>
-                    <div class="info"><div class="title">${app.name}</div><div class="subtitle">${app.company}</div></div>
+                    <div class="info">
+                        <div class="title">${app.name}</div>
+                        <div class="subtitle">${app.company}</div>
+                    </div>
                     <button class="get-btn" onclick="window.location.href='${app.scheme}'">OPEN</button>
                 `;
                 container.appendChild(item);
             });
         }
 
-        // --- USER FEEDBACK ---
-        async function sendFeedback() {
+        // --- 5. LOGIC & ADMIN ---
+        function sendFeedback() {
             const msg = document.getElementById('req-msg').value;
-            if(!msg) return alert("Type something!");
-            await supabase.from('requests').insert([{ message: msg }]);
-            alert("Sent!");
+            if(!msg) return alert("Please type something first!");
+            
+            db.ref('requests').push({
+                message: msg,
+                date: Date.now()
+            });
+            alert("Request Sent!");
             goHome();
         }
 
-        // --- ADMIN FUNCTIONS ---
         function checkLogin() {
-            const pin = document.getElementById('admin-pin').value;
-            if (pin === ADMIN_PIN) {
+            const input = document.getElementById('admin-pin').value;
+            if (input === ADMIN_PIN) {
                 document.getElementById('admin-login-view').style.display = 'none';
                 document.getElementById('admin-dashboard-view').style.display = 'block';
-                loadAdminRequests();
             } else {
-                alert("Wrong PIN");
+                alert("Incorrect PIN");
             }
         }
 
-        async function addAppToDb() {
+        function addApp() {
             const name = document.getElementById('new-name').value;
-            const company = document.getElementById('new-comp').value;
             const id = document.getElementById('new-id').value;
-            const scheme = document.getElementById('new-scheme').value;
-            const desc = document.getElementById('new-desc').value;
-            const color = document.getElementById('new-color').value;
+            
+            if(!name || !id) return alert("Name and App ID are required!");
 
-            if(!name || !id) return alert("Name and ID are required!");
-
-            const { error } = await supabase.from('apps').insert([{
-                name: name, company: company, app_store_id: id, scheme: scheme, description: desc, color: color
-            }]);
-
-            if(error) alert("Error: " + error.message);
-            else { alert("App Added!"); location.reload(); }
+            const newApp = {
+                name: name,
+                company: document.getElementById('new-comp').value,
+                id: id,
+                scheme: document.getElementById('new-scheme').value,
+                desc: document.getElementById('new-desc').value,
+                color: document.getElementById('new-color').value
+            };
+            
+            // Save to Firebase using the ID as the Key
+            db.ref('apps/' + id).set(newApp, (error) => {
+                if (error) {
+                    alert("Error: " + error.message);
+                } else {
+                    alert("App Added Successfully!");
+                    goHome();
+                }
+            });
         }
 
-        async function deleteAppFromDb() {
+        function deleteApp() {
             const name = document.getElementById('del-name').value;
-            if(!confirm("Are you sure you want to delete " + name + "?")) return;
+            const app = myApps.find(a => a.name === name);
             
-            const { error } = await supabase.from('apps').delete().eq('name', name);
-            if(error) alert("Error: " + error.message);
-            else { alert("Deleted!"); location.reload(); }
+            if(!app) return alert("App not found. Type the EXACT name.");
+            if(!confirm(`Are you sure you want to delete ${name}?`)) return;
+
+            db.ref('apps/' + app.id).remove()
+                .then(() => {
+                    alert("App Deleted.");
+                    goHome();
+                })
+                .catch(err => alert(err.message));
         }
 
-        async function loadAdminRequests() {
-            const list = document.getElementById('request-list');
-            const { data } = await supabase.from('requests').select('*').order('created_at', { ascending: false });
-            
-            if(data && data.length > 0) {
-                list.innerHTML = "";
-                data.forEach(req => {
-                    list.innerHTML += `<div class="req-item">${req.message} <span class="req-time">${new Date(req.created_at).toLocaleDateString()}</span></div>`;
-                });
-            } else {
-                list.innerHTML = "No requests yet.";
-            }
-        }
-
-        init();
+        // Initial Run
+        handleRouting();
     </script>
 </body>
 </html>
