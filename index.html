@@ -1,126 +1,114 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>App Store Showcase</title>
-
     <script>
-        // --- CONFIGURATION: ADD YOUR APPS HERE ---
-        const appList = [
-            {
-                name: "Instagram",
-                id: "389801252", // Real App Store ID
-                icon: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Instagram_icon.png/1024px-Instagram_icon.png",
-                desc: "Capture and share the world's moments."
-            },
-            {
-                name: "YouTube",
-                id: "544007664", 
-                icon: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/YouTube_full-color_icon_%282017%29.svg/1024px-YouTube_full-color_icon_%282017%29.svg.png",
-                desc: "Watch your favorite videos and music."
-            },
-            {
-                name: "Spotify",
-                id: "324684580",
-                icon: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/Spotify_logo_without_text.svg/1024px-Spotify_logo_without_text.svg.png",
-                desc: "Music for everyone."
-            }
-            // To add a new app, copy a block above, paste it here, and change the details.
+        // --- 1. YOUR APP DATABASE ---
+        // Add as many apps as you like here!
+        const myApps = [
+            { id: "389801252", name: "Instagram", icon: "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/05/9f/83/059f838c-8594-5415-4682-127110967673/AppIcon-0-0-1x_U007emarketing-0-0-0-10-0-0-sRGB-0-0-0-GLES2_U002c0-512MB-85-220-0-0.png/512x512bb.jpg" },
+            { id: "284882215", name: "Facebook", icon: "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/64/0e/96/640e9603-108b-6f8d-4e20-3b006509f7a5/AppIcon-0-0-1x_U007emarketing-0-0-0-10-0-0-sRGB-0-0-0-GLES2_U002c0-512MB-85-220-0-0.png/512x512bb.jpg" },
+            { id: "443904275", name: "LINE", icon: "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/91/92/79/9192797b-9993-87a4-9694-81e828f70046/AppIcon-0-0-1x_U007emarketing-0-0-0-10-0-0-sRGB-0-0-0-GLES2_U002c0-512MB-85-220-0-0.png/512x512bb.jpg" },
+            { id: "544007664", name: "YouTube", icon: "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/f4/37/26/f437267b-1678-0130-36b6-96a1a4593bc7/AppIcon-0-0-1x_U007emarketing-0-0-0-10-0-0-sRGB-0-0-0-GLES2_U002c0-512MB-85-220-0-0.png/512x512bb.jpg" }
         ];
 
-        // --- LOGIC TO INJECT BANNER ---
+        // --- 2. THE MAGIC LOGIC ---
+        // This checks if you clicked an app. If yes, it injects the banner tag IMMEDIATELY.
         const urlParams = new URLSearchParams(window.location.search);
-        const currentAppId = urlParams.get('id');
-        let currentApp = null;
+        const selectedId = urlParams.get('view_id');
 
-        if (currentAppId) {
-            currentApp = appList.find(app => app.id === currentAppId);
-            if (currentApp) {
-                // Determine if we are on iOS to show the specific meta tag
-                // Note: Safari requires the meta tag to be present quickly.
-                document.write(`<meta name="apple-itunes-app" content="app-id=${currentApp.id}">`);
-                document.title = currentApp.name + " - Download Now";
-            }
+        if (selectedId) {
+            document.write('<meta name="apple-itunes-app" content="app-id=' + selectedId + '">');
         }
     </script>
-
+    <title>My App Store</title>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 0; background: #f5f5f7; color: #333; }
-        .container { max-width: 800px; margin: 0 auto; padding: 20px; }
+        body { font-family: -apple-system, sans-serif; background: #f2f2f7; margin: 0; padding: 20px; color: #1c1c1e; }
+        .header { text-align: center; margin-bottom: 30px; padding-top: 20px; }
         
-        /* Grid Styles */
-        h1 { text-align: center; margin-bottom: 30px; }
-        .app-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 20px; }
-        .app-card { background: white; border-radius: 18px; padding: 20px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.05); transition: transform 0.2s; cursor: pointer; text-decoration: none; color: inherit; display: block; }
-        .app-card:hover { transform: translateY(-5px); }
-        .app-icon { width: 80px; height: 80px; border-radius: 18px; object-fit: cover; margin-bottom: 10px; border: 1px solid #eee; }
-        .app-name { font-weight: 600; font-size: 16px; margin: 0; }
+        /* The Grid Layout */
+        .app-grid { 
+            display: grid; 
+            grid-template-columns: repeat(2, 1fr); 
+            gap: 15px; 
+            max-width: 500px; 
+            margin: 0 auto; 
+        }
+
+        /* The App Card */
+        .app-card { 
+            background: white; 
+            border-radius: 20px; 
+            padding: 15px; 
+            text-decoration: none; 
+            color: inherit; 
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            transition: transform 0.2s;
+        }
+        .app-card:active { transform: scale(0.95); }
         
-        /* Detail Page Styles */
-        .detail-view { text-align: center; margin-top: 50px; background: white; padding: 40px; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
-        .detail-icon { width: 120px; height: 120px; border-radius: 24px; margin-bottom: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        .detail-desc { color: #666; margin: 15px 0 30px 0; font-size: 18px; }
-        .back-btn { display: inline-block; padding: 10px 20px; background: #007AFF; color: white; text-decoration: none; border-radius: 50px; font-weight: 500; }
-        .note { margin-top: 30px; font-size: 12px; color: #999; background: #eee; padding: 10px; border-radius: 8px; display: inline-block;}
+        .app-icon { 
+            width: 70px; 
+            height: 70px; 
+            border-radius: 15px; 
+            margin-bottom: 8px;
+            border: 0.5px solid #ddd;
+        }
+        .app-name { font-size: 14px; font-weight: 600; margin: 0; }
+
+        /* Detail View UI */
+        .detail-view { text-align: center; padding-top: 60px; }
+        .btn-back { 
+            display: inline-block; margin-top: 30px; padding: 10px 20px; 
+            background: #007aff; color: white; border-radius: 20px; 
+            text-decoration: none; font-weight: 500; 
+        }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        
-        <div id="grid-view" style="display: none;">
-            <h1>Our Apps</h1>
-            <div class="app-grid" id="grid-container">
-                </div>
+    <div id="main-content">
         </div>
-
-        <div id="detail-view" style="display: none;">
-            <div class="detail-view">
-                <img id="d-icon" src="" class="detail-icon">
-                <h1 id="d-name">App Name</h1>
-                <p id="d-desc">Description</p>
-                
-                <div class="note">
-                    Check the top of your Safari browser on iPhone.<br>
-                    The Smart App Banner should appear there.
-                </div>
-                <br><br>
-                <a href="index.html" class="back-btn">← Back to Grid</a>
-            </div>
-        </div>
-
-    </div>
 
     <script>
-        // --- RENDER LOGIC ---
-        const gridView = document.getElementById('grid-view');
-        const detailView = document.getElementById('detail-view');
-        const gridContainer = document.getElementById('grid-container');
+        const container = document.getElementById('main-content');
 
-        if (currentApp) {
-            // WE ARE ON A SPECIFIC APP PAGE
-            detailView.style.display = 'block';
-            document.getElementById('d-name').innerText = currentApp.name;
-            document.getElementById('d-icon').src = currentApp.icon;
-            document.getElementById('d-desc').innerText = currentApp.desc;
+        if (selectedId) {
+            // --- SHOWING ONE SPECIFIC APP PAGE ---
+            const app = myApps.find(a => a.id === selectedId);
+            container.innerHTML = `
+                <div class="detail-view">
+                    <img src="${app ? app.icon : ''}" class="app-icon" style="width:120px; height:120px; border-radius:25px;">
+                    <h1>${app ? app.name : 'Unknown App'}</h1>
+                    <p>Look at the top of your screen!<br>The iOS banner should appear now.</p>
+                    <a href="index.html" class="btn-back">← Back to All Apps</a>
+                </div>
+            `;
         } else {
-            // WE ARE ON THE HOME PAGE (GRID)
-            gridView.style.display = 'block';
-            
-            appList.forEach(app => {
-                // We use standard <a href> to force a reload so the Meta tag takes effect
-                const card = document.createElement('a');
-                card.className = 'app-card';
-                card.href = `?id=${app.id}`; 
-                
-                card.innerHTML = `
-                    <img src="${app.icon}" class="app-icon" alt="${app.name}">
-                    <p class="app-name">${app.name}</p>
+            // --- SHOWING THE GRID OF ALL APPS ---
+            let gridHtml = `
+                <div class="header">
+                    <h1>My App Gallery</h1>
+                    <p>Select an app to see its banner</p>
+                </div>
+                <div class="app-grid">
+            `;
+
+            myApps.forEach(app => {
+                gridHtml += `
+                    <a href="?view_id=${app.id}" class="app-card">
+                        <img src="${app.icon}" class="app-icon">
+                        <p class="app-name">${app.name}</p>
+                    </a>
                 `;
-                gridContainer.appendChild(card);
             });
+
+            gridHtml += `</div>`;
+            container.innerHTML = gridHtml;
         }
     </script>
+
 </body>
 </html>
