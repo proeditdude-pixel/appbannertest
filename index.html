@@ -1,720 +1,252 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="system">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="SchoolStore">
-    <title>Enterprise Store V5 + Firebase</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-    <script>
-        (function() {
-            console.log("[KERNEL] Initializing Banner Protocol...");
-            
-            const REGION_DB = {
-                "pskj": "1533072605",      // Global
-                "pskj-hk": "1526746012",   // HK/TW
-                "pskj-jp": "1489932710",   // JP
-                "clash": "1053012308",
-                "minecraft": "479516143",
-                "classroom": "924620788",
-                "canvas": "480883488",
-                "zoom": "546505307",
-                "docs": "842842640"
-            };
-
-            const params = new URLSearchParams(window.location.search);
-            const reqId = params.get('id');
-
-            if (reqId) {
-                let target = REGION_DB[reqId.toLowerCase()] || reqId;
-                if (/^\d+$/.test(target)) {
-                    console.log(`[KERNEL] Locking Region ID: ${target}`);
-                    document.write(`<meta name="apple-itunes-app" content="app-id=${target}">`);
-                }
-            }
-        })();
-    </script>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>App Store Grid</title>
     <style>
         :root {
-            /* COLOR SYSTEM (LIGHT) */
-            --ios-bg: #F2F2F7;
-            --ios-card: #FFFFFF;
-            --ios-text: #000000;
-            --ios-text-sec: #8E8E93;
-            --ios-border: rgba(0,0,0,0.1);
-            --ios-nav: rgba(255,255,255,0.85);
-            
-            /* ACCENTS */
-            --blue: #007AFF;
-            --green: #34C759;
-            --red: #FF3B30;
-            --orange: #FF9500;
-            --yellow: #FFCC00;
-            --purple: #5856D6;
-            --teal: #5AC8FA;
-            
-            /* METRICS */
-            --safe-top: env(safe-area-inset-top);
-            --safe-bottom: env(safe-area-inset-bottom);
-            --radius-icon: 16px;
-            --radius-card: 18px;
-            --radius-btn: 20px;
-            
-            /* ANIMATION */
-            --spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            --ease: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            --bg-color: #121212;
+            --text-color: #ffffff;
+            --card-bg: #1e1e1e;
+            --hover-bg: #2c2c2c;
         }
 
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --ios-bg: #000000;
-                --ios-card: #1C1C1E;
-                --ios-text: #FFFFFF;
-                --ios-text-sec: #98989D;
-                --ios-border: rgba(255,255,255,0.15);
-                --ios-nav: rgba(28,28,30,0.85);
-            }
-        }
-
-        /* --- RESET --- */
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; user-select: none; }
         body {
-            margin: 0; padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", Helvetica, Arial, sans-serif;
-            background: var(--ios-bg); color: var(--ios-text);
-            height: 100vh; overflow: hidden;
-            -webkit-font-smoothing: antialiased;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
         }
 
-        /* --- LAYOUT MANAGER --- */
-        .app-container {
-            display: flex; flex-direction: column;
-            height: 100%; width: 100%;
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            padding: 20px;
+        }
+
+        /* --- Grid View Styles --- */
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-top: 20px;
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin: 0;
+        }
+
+        .app-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 20px;
+            padding-bottom: 50px;
+        }
+
+        .app-card {
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            transition: transform 0.2s, background-color 0.2s;
+            text-align: center;
+        }
+
+        .app-card:hover {
+            transform: translateY(-5px);
+            background-color: var(--hover-bg);
+        }
+
+        .app-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 18px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+
+        .app-name {
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        /* --- Banner Page Styles --- */
+        #banner-page {
+            display: none; /* Hidden by default */
+            flex-direction: column;
+            align-items: center;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .back-btn {
+            align-self: flex-start;
+            background: none;
+            border: none;
+            color: #4da6ff;
+            font-size: 1.2rem;
+            cursor: pointer;
+            margin-bottom: 20px;
+            padding: 10px 0;
+        }
+
+        .back-btn:hover {
+            text-decoration: underline;
+        }
+
+        .banner-container {
+            width: 100%;
+            height: 300px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 30px;
+            background-size: cover;
+            background-position: center;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+            position: relative;
             overflow: hidden;
         }
 
-        /* --- SCROLL ZONES --- */
-        .scroll-view {
-            flex: 1; overflow-y: auto; overflow-x: hidden;
-            padding-bottom: 120px; /* Space for TabBar */
-            -webkit-overflow-scrolling: touch;
+        /* Text inside the banner placeholder */
+        .banner-text {
+            font-size: 3rem;
+            font-weight: 800;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.8);
+            z-index: 2;
         }
-        .scroll-view::-webkit-scrollbar { display: none; }
 
-        /* --- HEADER SYSTEM --- */
-        .header-lg {
-            padding: 20px 20px 5px 20px;
-            padding-top: max(20px, var(--safe-top));
-            background: var(--ios-bg);
-            transition: 0.3s ease;
+        .app-details {
+            text-align: center;
+            max-width: 600px;
         }
-        .date-sub { font-size: 13px; font-weight: 600; color: var(--ios-text-sec); text-transform: uppercase; margin-bottom: 4px; }
-        .page-title { font-size: 34px; font-weight: 800; letter-spacing: -0.5px; display: flex; justify-content: space-between; align-items: center; }
-        .avatar { width: 36px; height: 36px; border-radius: 50%; background: #ccc; overflow: hidden; position: relative; cursor: pointer; }
-        .avatar img { width: 100%; height: 100%; object-fit: cover; }
 
-        /* --- HERO CAROUSEL --- */
-        .hero-track {
-            display: flex; gap: 15px;
-            padding: 15px 20px;
-            overflow-x: auto;
-            scroll-snap-type: x mandatory;
-            -webkit-overflow-scrolling: touch;
-        }
-        .hero-track::-webkit-scrollbar { display: none; }
-        
-        .hero-card {
-            min-width: 300px; height: 220px;
-            background: #333;
-            border-radius: var(--radius-card);
-            scroll-snap-align: center;
-            position: relative; overflow: hidden;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-            transition: transform 0.2s;
-        }
-        .hero-card:active { transform: scale(0.96); }
-        .hero-bg { width: 100%; height: 100%; object-fit: cover; transition: transform 10s ease; }
-        .hero-card:hover .hero-bg { transform: scale(1.1); }
-        .hero-overlay {
-            position: absolute; bottom: 0; left: 0; right: 0;
-            padding: 20px;
-            background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+        .download-btn {
+            background-color: #007aff;
             color: white;
-        }
-        .hero-tag { font-size: 11px; font-weight: 700; color: #5AC8FA; text-transform: uppercase; margin-bottom: 4px; }
-        .hero-h1 { font-size: 22px; font-weight: 700; line-height: 1.1; margin-bottom: 6px; }
-        .hero-p { font-size: 13px; color: rgba(255,255,255,0.9); }
-
-        /* --- LIST COMPONENTS --- */
-        .list-group { padding: 0 20px; margin-bottom: 30px; }
-        .list-header { 
-            display: flex; justify-content: space-between; align-items: center; 
-            margin-bottom: 12px; font-size: 20px; font-weight: 700; 
-        }
-        .link-btn { font-size: 15px; color: var(--blue); font-weight: 400; cursor: pointer; }
-
-        .app-row {
-            display: flex; align-items: center;
-            padding: 10px 0;
-            border-bottom: 1px solid var(--ios-border);
-        }
-        .app-row:last-child { border-bottom: none; }
-        .app-row:active { background: rgba(120,120,128,0.05); }
-
-        .app-icon {
-            width: 60px; height: 60px;
-            border-radius: var(--radius-icon);
-            background: #eee;
-            margin-right: 15px;
-            object-fit: cover;
-            border: 1px solid rgba(0,0,0,0.05);
-        }
-        .app-meta { flex: 1; min-width: 0; }
-        .app-name { font-size: 16px; font-weight: 600; margin-bottom: 4px; color: var(--ios-text); }
-        .app-cat { font-size: 13px; color: var(--ios-text-sec); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        
-        /* --- GET BUTTON SYSTEM --- */
-        .btn-get-wrap { display: flex; flex-direction: column; align-items: center; width: 75px; }
-        .btn-get {
-            background: rgba(0,122,255,0.1);
-            color: var(--blue);
-            font-size: 13px; font-weight: 700;
-            padding: 6px 0; width: 70px;
-            border-radius: 16px; border: none;
-            text-transform: uppercase;
-            cursor: pointer; transition: 0.2s;
-        }
-        .btn-get:active { background: var(--blue); color: white; opacity: 0.7; }
-        .in-app-txt { font-size: 8px; color: var(--ios-text-sec); margin-top: 3px; }
-
-        /* --- TAB BAR --- */
-        .tab-bar {
-            position: fixed; bottom: 0; left: 0; right: 0;
-            height: calc(50px + var(--safe-bottom));
-            background: var(--ios-nav);
-            backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
-            border-top: 1px solid var(--ios-border);
-            display: flex; justify-content: space-around;
-            padding-bottom: var(--safe-bottom);
-            z-index: 1000;
-        }
-        .tab-item {
-            flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
-            color: var(--ios-text-sec);
+            border: none;
+            padding: 12px 30px;
+            border-radius: 30px;
+            font-size: 1rem;
+            font-weight: bold;
             cursor: pointer;
-        }
-        .tab-item.active { color: var(--blue); }
-        .tab-icon { font-size: 22px; margin-bottom: 3px; transition: transform 0.2s var(--spring); }
-        .tab-item.active .tab-icon { transform: translateY(-2px); }
-        .tab-label { font-size: 10px; font-weight: 500; }
-
-        /* --- SEARCH VIEW --- */
-        .search-container { padding: 10px 20px; position: sticky; top: 0; background: var(--ios-bg); z-index: 50; }
-        .search-box {
-            position: relative; width: 100%;
-        }
-        .search-input {
-            width: 100%; padding: 12px 12px 12px 40px;
-            background: rgba(118, 118, 128, 0.12);
-            border-radius: 10px; border: none;
-            color: var(--ios-text); font-size: 17px;
-        }
-        .search-icon { position: absolute; left: 12px; top: 12px; color: var(--ios-text-sec); }
-
-        /* --- ADMIN OS (HIDDEN) --- */
-        #os-layer {
-            position: fixed; inset: 0; background: #000; color: #0f0;
-            z-index: 9999; font-family: monospace; padding: 20px;
-            display: none; flex-direction: column;
-        }
-        .admin-window {
-            background: var(--ios-bg); color: var(--ios-text);
-            position: fixed; inset: 0; z-index: 5000;
-            display: flex; flex-direction: column;
-            transform: translateY(100%); transition: transform 0.4s var(--spring);
-        }
-        .admin-window.open { transform: translateY(0); }
-        
-        .admin-nav {
-            padding: 15px; background: var(--ios-card);
-            border-bottom: 1px solid var(--ios-border);
-            display: flex; justify-content: space-between; align-items: center;
-        }
-        
-        .form-group { padding: 20px; }
-        .input-field {
-            width: 100%; padding: 15px;
-            background: var(--ios-card);
-            border: 1px solid var(--ios-border);
-            border-radius: 12px; margin-bottom: 15px;
-            color: var(--ios-text); font-size: 16px;
-        }
-        
-        .btn-primary {
-            width: 100%; padding: 16px;
-            background: var(--blue); color: white;
-            border: none; border-radius: 14px;
-            font-size: 17px; font-weight: 600;
+            margin-top: 20px;
         }
 
-        /* --- SECURITY PAD --- */
-        .lock-overlay {
-            position: fixed; inset: 0;
-            background: rgba(0,0,0,0.8); backdrop-filter: blur(15px);
-            z-index: 6000;
-            display: none; align-items: center; justify-content: center; flex-direction: column;
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-        .pin-dots { display: flex; gap: 15px; margin-bottom: 40px; }
-        .dot { width: 14px; height: 14px; border-radius: 50%; border: 1px solid #fff; transition: 0.2s; }
-        .dot.filled { background: #fff; }
-        .numpad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px; }
-        .num-btn {
-            width: 75px; height: 75px; border-radius: 50%;
-            background: rgba(255,255,255,0.15); color: white;
-            font-size: 28px; display: flex; align-items: center; justify-content: center;
-            cursor: pointer; transition: 0.1s;
-        }
-        .num-btn:active { background: rgba(255,255,255,0.4); }
-
-        /* --- TOAST & LOADER --- */
-        .toast {
-            position: fixed; top: -80px; left: 20px; right: 20px;
-            background: rgba(20,20,20,0.8); backdrop-filter: blur(10px);
-            color: white; padding: 15px; border-radius: 30px;
-            display: flex; align-items: center; gap: 15px;
-            z-index: 7000; transition: top 0.4s var(--spring);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-        }
-        .toast.show { top: 10px; }
-        
-        .loader-ring {
-            width: 20px; height: 20px;
-            border: 3px solid rgba(255,255,255,0.3);
-            border-top: 3px solid #fff;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
     </style>
 </head>
 <body>
 
-    <div class="app-container">
-        
-        <div id="view-home" class="scroll-view">
-            <header class="header-lg">
-                <div class="date-sub" id="header-date">FRIDAY, JANUARY 30</div>
-                <div class="page-title">
-                    Today
-                    <div class="avatar" onclick="sys.triggerAdmin()">
-                        <img src="https://i.pravatar.cc/100?img=12" alt="User">
-                    </div>
-                </div>
+    <div class="container">
+        <div id="grid-view">
+            <header>
+                <h1>My Apps</h1>
+                <p style="color: #888;">Select an app to view details</p>
             </header>
-
-            <div style="border-bottom: 1px solid var(--ios-border); margin: 10px 20px;"></div>
-
-            <div class="hero-track">
-                <div class="hero-card" onclick="window.location.href='pjsekai://'">
-                    <img src="https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=800" class="hero-bg">
-                    <div class="hero-overlay">
-                        <div class="hero-tag">FEATURED GAME</div>
-                        <div class="hero-h1">Project Sekai</div>
-                        <div class="hero-p">Experience the new update.</div>
-                    </div>
-                </div>
-                <div class="hero-card" onclick="window.location.href='clashroyale://'">
-                    <img src="https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=800" class="hero-bg">
-                    <div class="hero-overlay">
-                        <div class="hero-tag">SEASON UPDATE</div>
-                        <div class="hero-h1">Clash Royale</div>
-                        <div class="hero-p">Battle in the arena now.</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="list-group">
-                <div class="list-header">
-                    <span>Recent Updates</span>
-                    <span class="link-btn">See All</span>
-                </div>
-                <div id="home-list">
-                    </div>
-            </div>
-
-            <div style="text-align:center; padding:30px; color:var(--ios-text-sec); font-size:12px;">
-                <p>Enterprise Managed Device</p>
-                <p>SchoolStore OS v5.3.0 (Firebase Enabled)</p>
-            </div>
-        </div>
-
-        <div id="view-search" class="scroll-view" style="display:none;">
-            <div class="header-lg">
-                <div class="page-title">Search</div>
-            </div>
-            <div class="search-container">
-                <div class="search-box">
-                    <i class="fas fa-search search-icon"></i>
-                    <input type="text" class="search-input" placeholder="Games, Apps, Tools" oninput="store.search(this.value)">
-                </div>
-            </div>
-            <div class="list-group" id="search-results">
+            <div class="app-grid" id="app-grid">
                 </div>
         </div>
 
-        <div class="tab-bar">
-            <div class="tab-item active" onclick="router.nav('home', this)">
-                <i class="fas fa-layer-group tab-icon"></i>
-                <span class="tab-label">Today</span>
-            </div>
-            <div class="tab-item" onclick="router.nav('games', this)">
-                <i class="fas fa-rocket tab-icon"></i>
-                <span class="tab-label">Games</span>
-            </div>
-            <div class="tab-item" onclick="router.nav('apps', this)">
-                <i class="fas fa-shapes tab-icon"></i>
-                <span class="tab-label">Apps</span>
-            </div>
-            <div class="tab-item" onclick="router.nav('search', this)">
-                <i class="fas fa-search tab-icon"></i>
-                <span class="tab-label">Search</span>
-            </div>
-        </div>
-
-    </div>
-
-    <div id="security-lock" class="lock-overlay">
-        <i class="fas fa-lock" style="font-size:30px; color:white; margin-bottom:20px;"></i>
-        <div style="color:white; font-size:18px; font-weight:600; margin-bottom:30px;">Enter Admin Passcode</div>
-        <div class="pin-dots">
-            <div class="dot" id="p0"></div><div class="dot" id="p1"></div>
-            <div class="dot" id="p2"></div><div class="dot" id="p3"></div>
-        </div>
-        <div class="numpad" id="numpad-container"></div>
-        <button onclick="sys.closeLock()" style="margin-top:40px; background:none; border:none; color:white; font-size:16px;">Cancel</button>
-    </div>
-
-    <div id="admin-panel" class="admin-window">
-        <div class="admin-nav">
-            <span style="font-weight:700; font-size:18px;">Console</span>
-            <button onclick="sys.closeAdmin()" style="color:var(--blue); background:none; border:none; font-size:16px; font-weight:600;">Done</button>
-        </div>
-        <div style="padding:20px; background:var(--ios-bg); flex:1; overflow-y:auto;">
-            <h3>Firebase Connected</h3>
-            <div style="font-size:12px; color:var(--green); margin-bottom:20px;">Analytics & App Initialized.</div>
+        <div id="banner-page">
+            <button class="back-btn" onclick="showGrid()">← Back to Apps</button>
             
-            <h3>Add Application</h3>
-            <div style="background:var(--ios-card); border-radius:12px; padding:15px; margin-bottom:20px;">
-                <input type="text" id="adm-id" class="input-field" placeholder="Apple ID (e.g. 1533072605)">
-                <input type="text" id="adm-name" class="input-field" placeholder="App Name">
-                <input type="text" id="adm-icon" class="input-field" placeholder="Icon URL">
-                <input type="text" id="adm-scheme" class="input-field" placeholder="URL Scheme (e.g. app://)">
-                <input type="text" id="adm-cat" class="input-field" placeholder="Category">
-                <button class="btn-primary" onclick="store.addApp()">Deploy App</button>
+            <div class="banner-container" id="detail-banner">
+                <span class="banner-text" id="detail-title">App Name</span>
             </div>
 
-            <h3>Database Registry</h3>
-            <div id="admin-list" style="background:var(--ios-card); border-radius:12px; overflow:hidden;"></div>
-            
-            <br>
-            <button class="btn-primary" style="background:var(--red);" onclick="store.nuke()">Factory Reset</button>
+            <div class="app-details">
+                <h2 id="detail-name-sub">App Name</h2>
+                <p>Experience the ultimate features of this application. Click below to get started.</p>
+                <button class="download-btn">Open App</button>
+            </div>
         </div>
     </div>
 
-    <div id="toast" class="toast">
-        <div class="loader-ring"></div>
-        <span id="toast-msg">Installing...</span>
-    </div>
+    <script>
+        // Data for the apps
+        const apps = [
+            { name: "Sora AI", color: "linear-gradient(135deg, #000000, #434343)", bannerColor: "#333" },
+            { name: "ChatGPT", color: "linear-gradient(135deg, #74AA9C, #10A37F)", bannerColor: "#10A37F" },
+            { name: "YouTube", color: "linear-gradient(135deg, #FF0000, #CC0000)", bannerColor: "#FF0000" },
+            { name: "Threads", color: "linear-gradient(135deg, #000000, #333333)", bannerColor: "#1a1a1a" },
+            { name: "Instagram", color: "linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045)", bannerColor: "#C13584" },
+            { name: "Roblox", color: "linear-gradient(135deg, #000000, #DE2A2A)", bannerColor: "#DE2A2A" },
+            { name: "PJSK (TW)", color: "linear-gradient(135deg, #33CCBB, #00AA99)", bannerColor: "#33CCBB" }, // Project Sekai
+            { name: "Clash Royale", color: "linear-gradient(135deg, #2D63D8, #5A91FF)", bannerColor: "#2D63D8" },
+            { name: "Brawl Stars", color: "linear-gradient(135deg, #FFC400, #FF9100)", bannerColor: "#FFC400" }
+        ];
 
-    <script type="module">
-        // ---------------------------------------------------------
-        // A. FIREBASE INTEGRATION (UPDATED FOR CDN)
-        // ---------------------------------------------------------
+        const gridContainer = document.getElementById('app-grid');
+        const gridView = document.getElementById('grid-view');
+        const bannerPage = document.getElementById('banner-page');
         
-        // We use CDN imports because raw imports don't work in plain HTML files
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js";
-        // import { getDatabase } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        // Elements to update in banner page
+        const detailBanner = document.getElementById('detail-banner');
+        const detailTitle = document.getElementById('detail-title');
+        const detailNameSub = document.getElementById('detail-name-sub');
 
-        const firebaseConfig = {
-          apiKey: "AIzaSyDGi1smvUpUmw76Qrc0XWLRDDgpfEZAEDA",
-          authDomain: "schoolappdownload.firebaseapp.com",
-          databaseURL: "https://schoolappdownload-default-rtdb.asia-southeast1.firebasedatabase.app",
-          projectId: "schoolappdownload",
-          storageBucket: "schoolappdownload.firebasestorage.app",
-          messagingSenderId: "386507255292",
-          appId: "1:386507255292:web:c20e841b39538c43251679",
-          measurementId: "G-HVZLQ96B6P"
-        };
+        // Function to render the grid
+        function renderGrid() {
+            gridContainer.innerHTML = '';
+            apps.forEach(app => {
+                const card = document.createElement('div');
+                card.className = 'app-card';
+                card.onclick = () => showBanner(app);
 
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const analytics = getAnalytics(app);
-        console.log("[FIREBASE] Initialized Successfully");
-
-        // ---------------------------------------------------------
-        // B. APP LOGIC (GLOBAL SCOPE FIX)
-        // ---------------------------------------------------------
-
-        // --- CONFIG ---
-        const CONFIG = {
-            version: '5.3',
-            passcode: '2026', // <--- ADMIN CODE
-            dbKey: 'ent_store_v5_db'
-        };
-
-        // --- DATABASE ---
-        const db = {
-            data: [],
-            init: function() {
-                const local = localStorage.getItem(CONFIG.dbKey);
-                if (local) {
-                    this.data = JSON.parse(local);
-                } else {
-                    this.seed();
-                }
-                store.render();
-            },
-            seed: function() {
-                this.data = [
-                    { id: "1", appleId: "1533072605", name: "Project Sekai", cat: "Music", icon: "https://is1-ssl.mzstatic.com/image/thumb/Purple126/v4/8e/8e/33/8e8e33f3-078b-5777-6c84-3c6f05904321/AppIcon-0-0-1x_U007emarketing-0-0-0-7-0-0-sRGB-0-0-0-GLES2_U002c0-512MB-85-220-0-0.png/230x0w.webp", scheme: "pjsekai://" },
-                    { id: "2", appleId: "1053012308", name: "Clash Royale", cat: "Strategy", icon: "https://is1-ssl.mzstatic.com/image/thumb/Purple126/v4/99/36/41/9936413d-5134-8664-5d9c-850f38010464/AppIcon-0-0-1x_U007emarketing-0-0-0-7-0-0-sRGB-0-0-0-GLES2_U002c0-512MB-85-220-0-0.png/230x0w.webp", scheme: "clashroyale://" },
-                    { id: "3", appleId: "479516143", name: "Minecraft", cat: "Simulation", icon: "https://is1-ssl.mzstatic.com/image/thumb/Purple126/v4/d3/18/85/d3188523-7a2e-3362-66b9-9189334d702d/AppIcon-0-0-1x_U007emarketing-0-0-0-7-0-0-sRGB-0-0-0-GLES2_U002c0-512MB-85-220-0-0.png/230x0w.webp", scheme: "minecraft://" },
-                    { id: "4", appleId: "546505307", name: "Zoom", cat: "Business", icon: "https://is1-ssl.mzstatic.com/image/thumb/Purple116/v4/2b/c7/41/2bc74143-6363-d345-427f-315159491c13/AppIcon-0-0-1x_U007emarketing-0-0-0-7-0-0-sRGB-0-0-0-GLES2_U002c0-512MB-85-220-0-0.png/230x0w.webp", scheme: "zoomus://" },
-                    { id: "5", appleId: "480883488", name: "Canvas", cat: "Education", icon: "https://is1-ssl.mzstatic.com/image/thumb/Purple126/v4/05/20/86/052086e1-9544-712e-13c0-0f33df684a0c/AppIcon-0-0-1x_U007emarketing-0-0-0-7-0-0-sRGB-0-0-0-GLES2_U002c0-512MB-85-220-0-0.png/230x0w.webp", scheme: "canvas-student://" },
-                    { id: "6", appleId: "924620788", name: "Classroom", cat: "Education", icon: "https://is1-ssl.mzstatic.com/image/thumb/Purple126/v4/d9/cb/04/d9cb0413-d07d-531c-5266-fb8407bb3793/AppIcon-0-0-1x_U007emarketing-0-0-0-7-0-0-sRGB-0-0-0-GLES2_U002c0-512MB-85-220-0-0.png/230x0w.webp", scheme: "googleclassroom://" }
-                ];
-                this.save();
-            },
-            save: function() {
-                localStorage.setItem(CONFIG.dbKey, JSON.stringify(this.data));
-            }
-        };
-
-        // --- ROUTER ---
-        const router = {
-            nav: function(viewId, el) {
-                // Update Tab UI
-                document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
-                if(el) el.classList.add('active');
-
-                // Update View
-                document.querySelectorAll('.scroll-view').forEach(v => v.style.display = 'none');
+                // Create the icon box with initials
+                const initials = app.name.substring(0, 2).toUpperCase();
                 
-                if (viewId === 'home') document.getElementById('view-home').style.display = 'block';
-                if (viewId === 'search') document.getElementById('view-search').style.display = 'block';
-                if (viewId === 'games') {
-                     store.filterCategory('Game');
-                }
-                if (viewId === 'apps') {
-                    store.filterCategory('Education');
-                }
-            }
-        };
+                card.innerHTML = `
+                    <div class="app-icon" style="background: ${app.color}">
+                        ${initials}
+                    </div>
+                    <div class="app-name">${app.name}</div>
+                `;
+                gridContainer.appendChild(card);
+            });
+        }
 
-        // --- STORE CONTROLLER ---
-        const store = {
-            render: function(dataSet = db.data, target = 'home-list') {
-                const container = document.getElementById(target);
-                container.innerHTML = '';
-                
-                dataSet.forEach(app => {
-                    const el = document.createElement('div');
-                    el.className = 'app-row';
-                    el.onclick = () => window.location.href = app.scheme;
-                    el.innerHTML = `
-                        <img src="${app.icon}" class="app-icon" loading="lazy">
-                        <div class="app-meta">
-                            <div class="app-name">${app.name}</div>
-                            <div class="app-cat">${app.cat}</div>
-                        </div>
-                        <div class="btn-get-wrap">
-                            <button class="btn-get" onclick="store.install(event, '${app.scheme}')">GET</button>
-                            <span class="in-app-txt">In-App Purchase</span>
-                        </div>
-                    `;
-                    container.appendChild(el);
-                });
-                
-                // Also render admin list
-                if(target === 'home-list') this.renderAdmin();
-            },
-
-            renderAdmin: function() {
-                const container = document.getElementById('admin-list');
-                container.innerHTML = '';
-                db.data.forEach(app => {
-                    const row = document.createElement('div');
-                    row.style.padding = '15px';
-                    row.style.borderBottom = '1px solid #ccc';
-                    row.style.display = 'flex';
-                    row.style.justifyContent = 'space-between';
-                    row.innerHTML = `
-                        <div><b>${app.name}</b><br><span style="font-size:10px">${app.appleId}</span></div>
-                        <button onclick="sys.copyLink('${app.appleId}')" style="background:#eee; border:none; padding:5px 10px; border-radius:5px;">Link</button>
-                    `;
-                    container.appendChild(row);
-                });
-            },
-
-            search: function(query) {
-                const q = query.toLowerCase();
-                const hits = db.data.filter(x => x.name.toLowerCase().includes(q) || x.cat.toLowerCase().includes(q));
-                this.render(hits, 'search-results');
-            },
-
-            filterCategory: function(cat) {
-                 const hits = db.data.filter(x => x.cat.includes(cat) || (cat === 'Education' && x.cat !== 'Game'));
-                 document.getElementById('view-home').style.display = 'none';
-                 document.getElementById('view-search').style.display = 'block';
-                 this.render(hits, 'search-results');
-                 document.querySelector('.search-input').value = "";
-                 document.querySelector('.page-title').innerText = cat;
-            },
-
-            install: function(e, scheme) {
-                e.stopPropagation();
-                const btn = e.target;
-                
-                // Simulation
-                btn.style.width = '30px';
-                btn.style.borderRadius = '50%';
-                btn.innerText = '';
-                btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i>';
-                
-                sys.toast("Downloading...", true);
-
-                setTimeout(() => {
-                    btn.style.background = 'transparent';
-                    btn.style.border = '2px solid var(--blue)';
-                    btn.style.color = 'var(--blue)';
-                    btn.style.width = '70px';
-                    btn.style.borderRadius = '16px';
-                    btn.innerHTML = 'OPEN';
-                    btn.onclick = () => window.location.href = scheme;
-                    sys.toast("Installed", false);
-                }, 1500);
-            },
-
-            addApp: function() {
-                const id = document.getElementById('adm-id').value;
-                const name = document.getElementById('adm-name').value;
-                const icon = document.getElementById('adm-icon').value;
-                const scheme = document.getElementById('adm-scheme').value;
-                const cat = document.getElementById('adm-cat').value;
-
-                if(!id || !name) return alert("Missing Data");
-
-                db.data.push({ id: Date.now(), appleId: id, name, icon, scheme, cat });
-                db.save();
-                this.render();
-                alert("App Deployed");
-            },
-
-            nuke: function() {
-                if(confirm("Erase all data?")) {
-                    localStorage.removeItem(CONFIG.dbKey);
-                    location.reload();
-                }
-            }
-        };
-
-        // --- SYSTEM CORE ---
-        const sys = {
-            triggerAdmin: function() {
-                document.getElementById('security-lock').style.display = 'flex';
-                this.renderPad();
-            },
-            closeLock: function() {
-                document.getElementById('security-lock').style.display = 'none';
-                this.pin = "";
-                this.updateDots();
-            },
-            openAdmin: function() {
-                this.closeLock();
-                document.getElementById('admin-panel').classList.add('open');
-            },
-            closeAdmin: function() {
-                document.getElementById('admin-panel').classList.remove('open');
-            },
+        // Function to switch to Banner view
+        function showBanner(app) {
+            // Populate data
+            detailTitle.textContent = app.name;
+            detailNameSub.textContent = app.name;
             
-            // PIN LOGIC
-            pin: "",
-            renderPad: function() {
-                const pad = document.getElementById('numpad-container');
-                pad.innerHTML = '';
-                [1,2,3,4,5,6,7,8,9,0].forEach(n => {
-                    const btn = document.createElement('div');
-                    btn.className = 'num-btn';
-                    btn.innerText = n;
-                    if(n===0) btn.style.gridColumn = '2';
-                    btn.onclick = () => this.handlePin(n);
-                    pad.appendChild(btn);
-                });
-            },
-            handlePin: function(n) {
-                if(this.pin.length < 4) {
-                    this.pin += n;
-                    this.updateDots();
-                    if(this.pin.length === 4) {
-                        setTimeout(() => {
-                            if(this.pin === CONFIG.passcode) this.openAdmin();
-                            else {
-                                alert("WRONG PASSCODE");
-                                this.pin = "";
-                                this.updateDots();
-                            }
-                        }, 200);
-                    }
-                }
-            },
-            updateDots: function() {
-                for(let i=0; i<4; i++) {
-                    const d = document.getElementById('p'+i);
-                    if(i < this.pin.length) d.classList.add('filled');
-                    else d.classList.remove('filled');
-                }
-            },
+            // Set banner background
+            // Since we don't have real images, we use the gradient/color
+            detailBanner.style.background = app.color;
 
-            toast: function(msg, spin) {
-                const t = document.getElementById('toast');
-                document.getElementById('toast-msg').innerText = msg;
-                t.querySelector('.loader-ring').style.display = spin ? 'block' : 'none';
-                t.classList.add('show');
-                setTimeout(() => t.classList.remove('show'), 2500);
-            },
-            
-            copyLink: function(id) {
-                const url = window.location.origin + window.location.pathname + "?id=" + id;
-                navigator.clipboard.writeText(url);
-                this.toast("Link Copied", false);
-            }
-        };
+            // Hide Grid, Show Banner
+            gridView.style.display = 'none';
+            bannerPage.style.display = 'flex';
+        }
 
-        // --- EXPORT TO WINDOW (REQUIRED FOR MODULES) ---
-        window.store = store;
-        window.router = router;
-        window.sys = sys;
+        // Function to go back to Grid
+        function showGrid() {
+            bannerPage.style.display = 'none';
+            gridView.style.display = 'block';
+        }
 
-        // --- BOOT ---
-        window.onload = function() {
-            // Check for admin route
-            const params = new URLSearchParams(window.location.search);
-            if(params.get('mode') === 'admin') sys.triggerAdmin();
-
-            // Set Date
-            const d = new Date();
-            document.getElementById('header-date').innerText = d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
-
-            // Init DB
-            db.init();
-        };
-
+        // Initialize
+        renderGrid();
     </script>
 </body>
 </html>
