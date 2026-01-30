@@ -3,250 +3,361 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>App Store Grid</title>
+    <title>App Smart Banner Demo</title>
     <style>
-        :root {
-            --bg-color: #121212;
-            --text-color: #ffffff;
-            --card-bg: #1e1e1e;
-            --hover-bg: #2c2c2c;
-        }
-
+        /* --- GLOBAL STYLES --- */
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
             margin: 0;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            display: flex;
-            justify-content: center;
-            min-height: 100vh;
+            padding: 0;
+            background-color: #f5f5f7;
+            color: #1d1d1f;
         }
 
-        .container {
-            width: 100%;
-            max-width: 1200px;
-            padding: 20px;
-        }
-
-        /* --- Grid View Styles --- */
-        header {
-            text-align: center;
-            margin-bottom: 40px;
-            padding-top: 20px;
+        /* --- 1. HOME GRID STYLES --- */
+        #home-view {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
         }
 
         h1 {
-            font-size: 2rem;
-            margin: 0;
-        }
-
-        .app-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            gap: 20px;
-            padding-bottom: 50px;
-        }
-
-        .app-card {
-            background-color: var(--card-bg);
-            border-radius: 16px;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            cursor: pointer;
-            transition: transform 0.2s, background-color 0.2s;
             text-align: center;
+            font-weight: 700;
+            margin-bottom: 40px;
         }
 
-        .app-card:hover {
-            transform: translateY(-5px);
-            background-color: var(--hover-bg);
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+            gap: 30px;
+            justify-items: center;
         }
 
-        .app-icon {
-            width: 80px;
-            height: 80px;
-            border-radius: 18px;
-            margin-bottom: 15px;
+        .app-item {
             display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            font-weight: bold;
-            color: white;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-        }
-
-        .app-name {
-            font-size: 0.9rem;
-            font-weight: 500;
-        }
-
-        /* --- Banner Page Styles --- */
-        #banner-page {
-            display: none; /* Hidden by default */
             flex-direction: column;
             align-items: center;
-            animation: fadeIn 0.3s ease-in-out;
-        }
-
-        .back-btn {
-            align-self: flex-start;
-            background: none;
-            border: none;
-            color: #4da6ff;
-            font-size: 1.2rem;
             cursor: pointer;
-            margin-bottom: 20px;
-            padding: 10px 0;
+            width: 100px;
+            transition: transform 0.2s;
         }
 
-        .back-btn:hover {
-            text-decoration: underline;
+        .app-item:hover {
+            transform: scale(1.05);
         }
 
-        .banner-container {
+        /* Reusable Icon Style */
+        .app-icon {
+            width: 72px;
+            height: 72px;
+            border-radius: 16px;
+            background-size: cover;
+            background-position: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            margin-bottom: 12px;
+            border: 1px solid rgba(0,0,0,0.05);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Gradients for icons (No images needed) */
+        .icon-sora { background: linear-gradient(135deg, #000 0%, #333 100%); }
+        .icon-gpt { background: linear-gradient(135deg, #74aa9c 0%, #10a37f 100%); }
+        .icon-yt { background: linear-gradient(135deg, #ff0000 0%, #cc0000 100%); }
+        .icon-threads { background: linear-gradient(135deg, #000 0%, #222 100%); }
+        .icon-insta { background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); }
+        .icon-roblox { background: linear-gradient(135deg, #dce1e3 0%, #7e7e7e 100%); border: 2px solid #000; }
+        .icon-pjsk { background: linear-gradient(135deg, #33ccbb 0%, #00aa99 100%); }
+        .icon-clash { background: linear-gradient(135deg, #2d63d8 0%, #5a91ff 100%); }
+        .icon-brawl { background: linear-gradient(135deg, #ffc400 0%, #ff9100 100%); }
+
+        .app-title {
+            font-size: 13px;
+            font-weight: 500;
+            text-align: center;
+            line-height: 1.3;
+        }
+
+        /* --- 2. APP PAGE (WEBSITE) STYLES --- */
+        #app-website-view {
+            display: none; /* Hidden by default */
+            background-color: white;
+            min-height: 100vh;
+            position: relative;
+            padding-top: 84px; /* Space for the banner */
+        }
+
+        /* THE SMART BANNER */
+        .smart-banner {
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
+            height: 84px;
+            background-color: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-bottom: 1px solid #c6c6c8;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 15px;
+            box-sizing: border-box;
+            z-index: 1000;
+            box-shadow: 0 1px 5px rgba(0,0,0,0.05);
+        }
+
+        .sb-left {
+            display: flex;
+            align-items: center;
+        }
+
+        .sb-close {
+            color: #8a8a8e;
+            font-size: 20px;
+            padding: 10px;
+            margin-right: 5px;
+            cursor: pointer;
+        }
+
+        .sb-icon-small {
+            width: 58px;
+            height: 58px;
+            border-radius: 12px;
+            margin-right: 12px;
+            background-size: cover;
+            border: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .sb-info {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .sb-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #000;
+            margin-bottom: 2px;
+        }
+
+        .sb-subtitle {
+            font-size: 12px;
+            color: #6e6e73;
+        }
+
+        .sb-rating {
+            font-size: 11px;
+            color: #8a8a8e;
+            margin-top: 2px;
+        }
+        
+        .stars { color: #ff9500; }
+
+        .sb-view-btn {
+            color: #007aff;
+            font-size: 15px;
+            font-weight: 600;
+            text-decoration: none;
+            text-transform: uppercase;
+            padding: 8px 10px;
+        }
+
+        /* FAKE WEBSITE CONTENT */
+        .website-content {
+            padding: 20px;
+            text-align: center;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .hero-block {
+            background-color: #f2f2f2;
             height: 300px;
             border-radius: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
             margin-bottom: 30px;
-            background-size: cover;
-            background-position: center;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
-            position: relative;
-            overflow: hidden;
-        }
-
-        /* Text inside the banner placeholder */
-        .banner-text {
-            font-size: 3rem;
-            font-weight: 800;
-            text-shadow: 2px 2px 8px rgba(0,0,0,0.8);
-            z-index: 2;
-        }
-
-        .app-details {
-            text-align: center;
-            max-width: 600px;
-        }
-
-        .download-btn {
-            background-color: #007aff;
-            color: white;
-            border: none;
-            padding: 12px 30px;
-            border-radius: 30px;
-            font-size: 1rem;
+            color: #999;
+            font-size: 24px;
             font-weight: bold;
-            cursor: pointer;
-            margin-top: 20px;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        .back-btn {
+            display: inline-block;
+            margin-top: 40px;
+            padding: 12px 30px;
+            background-color: #000;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 25px;
+            font-size: 14px;
+            cursor: pointer;
         }
 
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <div id="grid-view">
-            <header>
-                <h1>My Apps</h1>
-                <p style="color: #888;">Select an app to view details</p>
-            </header>
-            <div class="app-grid" id="app-grid">
+    <div id="home-view">
+        <h1>My Apps</h1>
+        <div class="grid-container" id="grid">
+            </div>
+    </div>
+
+    <div id="app-website-view">
+        
+        <div class="smart-banner" id="smart-banner">
+            <div class="sb-left">
+                <div class="sb-close" onclick="goHome()">✕</div>
+                <div class="sb-icon-small" id="sb-icon"></div>
+                <div class="sb-info">
+                    <div class="sb-title" id="sb-title">App Name</div>
+                    <div class="sb-subtitle" id="sb-dev">Developer</div>
+                    <div class="sb-rating">
+                        <span class="stars">★★★★★</span> (4.9)
+                    </div>
                 </div>
+            </div>
+            <a href="#" class="sb-view-btn" id="sb-link" target="_blank">VIEW</a>
         </div>
 
-        <div id="banner-page">
-            <button class="back-btn" onclick="showGrid()">← Back to Apps</button>
-            
-            <div class="banner-container" id="detail-banner">
-                <span class="banner-text" id="detail-title">App Name</span>
+        <div class="website-content">
+            <h2 id="web-title">Welcome</h2>
+            <p>This is the official website page for this app.</p>
+            <div class="hero-block" id="web-hero">
+                App Hero Image
             </div>
+            <p style="color: #666; line-height: 1.6;">
+                Experience the best features on mobile. <br>
+                Download the app from the banner above to get started.
+            </p>
 
-            <div class="app-details">
-                <h2 id="detail-name-sub">App Name</h2>
-                <p>Experience the ultimate features of this application. Click below to get started.</p>
-                <button class="download-btn">Open App</button>
-            </div>
+            <div class="back-btn" onclick="goHome()">← Back to Grid</div>
         </div>
+
     </div>
 
     <script>
-        // Data for the apps
+        // DATA
         const apps = [
-            { name: "Sora AI", color: "linear-gradient(135deg, #000000, #434343)", bannerColor: "#333" },
-            { name: "ChatGPT", color: "linear-gradient(135deg, #74AA9C, #10A37F)", bannerColor: "#10A37F" },
-            { name: "YouTube", color: "linear-gradient(135deg, #FF0000, #CC0000)", bannerColor: "#FF0000" },
-            { name: "Threads", color: "linear-gradient(135deg, #000000, #333333)", bannerColor: "#1a1a1a" },
-            { name: "Instagram", color: "linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045)", bannerColor: "#C13584" },
-            { name: "Roblox", color: "linear-gradient(135deg, #000000, #DE2A2A)", bannerColor: "#DE2A2A" },
-            { name: "PJSK (TW)", color: "linear-gradient(135deg, #33CCBB, #00AA99)", bannerColor: "#33CCBB" }, // Project Sekai
-            { name: "Clash Royale", color: "linear-gradient(135deg, #2D63D8, #5A91FF)", bannerColor: "#2D63D8" },
-            { name: "Brawl Stars", color: "linear-gradient(135deg, #FFC400, #FF9100)", bannerColor: "#FFC400" }
+            { 
+                name: "Sora AI", 
+                dev: "OpenAI", 
+                url: "https://openai.com/sora", // No app store link yet
+                color: "icon-sora" 
+            },
+            { 
+                name: "ChatGPT", 
+                dev: "OpenAI", 
+                url: "https://apps.apple.com/us/app/chatgpt/id6448311069", 
+                color: "icon-gpt" 
+            },
+            { 
+                name: "YouTube", 
+                dev: "Google LLC", 
+                url: "https://apps.apple.com/us/app/youtube/id544007664", 
+                color: "icon-yt" 
+            },
+            { 
+                name: "Threads", 
+                dev: "Instagram, Inc.", 
+                url: "https://apps.apple.com/us/app/threads/id6446901002", 
+                color: "icon-threads" 
+            },
+            { 
+                name: "Instagram", 
+                dev: "Instagram, Inc.", 
+                url: "https://apps.apple.com/us/app/instagram/id389801252", 
+                color: "icon-insta" 
+            },
+            { 
+                name: "Roblox", 
+                dev: "Roblox Corp", 
+                url: "https://apps.apple.com/us/app/roblox/id431946152", 
+                color: "icon-roblox" 
+            },
+            { 
+                name: "PJSK (TW)", 
+                dev: "Nuverse", 
+                url: "https://apps.apple.com/tw/app/project-sekai-colorful-stage/id1568294309", 
+                color: "icon-pjsk" 
+            },
+            { 
+                name: "Clash Royale", 
+                dev: "Supercell", 
+                url: "https://apps.apple.com/us/app/clash-royale/id1053012308", 
+                color: "icon-clash" 
+            },
+            { 
+                name: "Brawl Stars", 
+                dev: "Supercell", 
+                url: "https://apps.apple.com/us/app/brawl-stars/id1229016807", 
+                color: "icon-brawl" 
+            }
         ];
 
-        const gridContainer = document.getElementById('app-grid');
-        const gridView = document.getElementById('grid-view');
-        const bannerPage = document.getElementById('banner-page');
+        const gridEl = document.getElementById('grid');
+        const homeView = document.getElementById('home-view');
+        const websiteView = document.getElementById('app-website-view');
+
+        // Banner Elements
+        const sbTitle = document.getElementById('sb-title');
+        const sbDev = document.getElementById('sb-dev');
+        const sbIcon = document.getElementById('sb-icon');
+        const sbLink = document.getElementById('sb-link');
         
-        // Elements to update in banner page
-        const detailBanner = document.getElementById('detail-banner');
-        const detailTitle = document.getElementById('detail-title');
-        const detailNameSub = document.getElementById('detail-name-sub');
+        // Website Content Elements
+        const webTitle = document.getElementById('web-title');
+        const webHero = document.getElementById('web-hero');
 
-        // Function to render the grid
-        function renderGrid() {
-            gridContainer.innerHTML = '';
-            apps.forEach(app => {
-                const card = document.createElement('div');
-                card.className = 'app-card';
-                card.onclick = () => showBanner(app);
-
-                // Create the icon box with initials
-                const initials = app.name.substring(0, 2).toUpperCase();
-                
-                card.innerHTML = `
-                    <div class="app-icon" style="background: ${app.color}">
-                        ${initials}
-                    </div>
-                    <div class="app-name">${app.name}</div>
-                `;
-                gridContainer.appendChild(card);
-            });
-        }
-
-        // Function to switch to Banner view
-        function showBanner(app) {
-            // Populate data
-            detailTitle.textContent = app.name;
-            detailNameSub.textContent = app.name;
+        // 1. RENDER GRID
+        apps.forEach((app, index) => {
+            const item = document.createElement('div');
+            item.className = 'app-item';
+            item.onclick = () => openPage(index);
             
-            // Set banner background
-            // Since we don't have real images, we use the gradient/color
-            detailBanner.style.background = app.color;
+            item.innerHTML = `
+                <div class="app-icon ${app.color}"></div>
+                <div class="app-title">${app.name}</div>
+            `;
+            gridEl.appendChild(item);
+        });
 
-            // Hide Grid, Show Banner
-            gridView.style.display = 'none';
-            bannerPage.style.display = 'flex';
+        // 2. OPEN PAGE FUNCTION
+        function openPage(index) {
+            const app = apps[index];
+
+            // Setup Banner
+            sbTitle.innerText = app.name;
+            sbDev.innerText = app.dev;
+            sbLink.href = app.url;
+            
+            // Set Banner Icon
+            sbIcon.className = `sb-icon-small ${app.color}`;
+
+            // Setup Page Content
+            webTitle.innerText = `Welcome to ${app.name}`;
+            webHero.className = `hero-block ${app.color}`;
+            webHero.innerText = app.name; // Text inside hero image placeholder
+
+            // Switch Views
+            homeView.style.display = 'none';
+            websiteView.style.display = 'block';
+            
+            // Scroll to top
+            window.scrollTo(0,0);
         }
 
-        // Function to go back to Grid
-        function showGrid() {
-            bannerPage.style.display = 'none';
-            gridView.style.display = 'block';
+        // 3. GO BACK FUNCTION
+        function goHome() {
+            websiteView.style.display = 'none';
+            homeView.style.display = 'block';
         }
 
-        // Initialize
-        renderGrid();
     </script>
 </body>
 </html>
