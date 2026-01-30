@@ -1,3 +1,210 @@
-<h1>HOLY SHIT WHO EVER TELL ME TO FIX BUG AND WAIT , I AM ENOUGH , I WILL DO IT JUST WAIT</h1>
-<a href="https://imgbb.com/"><img src="https://i.ibb.co/0pxfVztg/IMG-7442.jpg" alt="IMG 7442" border="0"></a>
-<a href="https://ibb.co/QFzmcCJs"><img src="https://i.ibb.co/d01KcLfn/IMG-7441.jpg" alt="IMG-7441" border="0"></a>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>App Store</title>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const appId = urlParams.get('id');
+
+        if (appId) {
+            // This forces the meta tag into the code for Safari to see
+            document.write('<meta name="apple-itunes-app" content="app-id=' + appId + '">');
+        }
+    </script>
+
+    <style>
+        :root {
+            --bg-color: #000000;
+            --text-color: #ffffff;
+            --card-bg: #1c1c1e;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* --- GRID VIEW STYLES --- */
+        #grid-view {
+            width: 100%;
+            max-width: 500px;
+            display: none; /* Hidden by default, shown via JS */
+        }
+
+        h1 { margin-bottom: 20px; text-align: center; }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        .app-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: white;
+            transition: opacity 0.2s;
+        }
+
+        .app-item:active { opacity: 0.6; }
+
+        .icon {
+            width: 75px;
+            height: 75px;
+            border-radius: 16px;
+            background-size: cover;
+            background-position: center;
+            margin-bottom: 8px;
+            border: 1px solid #333;
+        }
+
+        .name { font-size: 11px; text-align: center; font-weight: 500; }
+
+        /* Icon Colors */
+        .sora { background: linear-gradient(135deg, #000, #444); }
+        .gpt { background: linear-gradient(135deg, #74AA9C, #10A37F); }
+        .yt { background: linear-gradient(135deg, #FF0000, #CC0000); }
+        .threads { background: linear-gradient(135deg, #000, #222); }
+        .insta { background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366); }
+        .roblox { background: linear-gradient(135deg, #333, #ccc); border-color: #fff; }
+        .pjsk { background: linear-gradient(135deg, #33CCBB, #00AA99); }
+        .clash { background: linear-gradient(135deg, #2D63D8, #5A91FF); }
+        .brawl { background: linear-gradient(135deg, #FFC400, #FF9100); }
+
+        /* --- APP PAGE VIEW STYLES --- */
+        #app-view {
+            display: none; /* Hidden by default */
+            text-align: center;
+            padding-top: 50px;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .hero-icon {
+            width: 120px;
+            height: 120px;
+            border-radius: 26px;
+            margin: 0 auto 20px auto;
+            border: 1px solid #333;
+        }
+
+        .back-btn {
+            display: inline-block;
+            margin-top: 40px;
+            padding: 12px 30px;
+            background-color: #1c1c1e;
+            color: #0a84ff;
+            text-decoration: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .instruction {
+            color: #888;
+            font-size: 14px;
+            margin-top: 10px;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="grid-view">
+        <h1>My Apps</h1>
+        <div class="grid">
+            <a href="?id=6448311069&name=Sora%20AI&color=sora" class="app-item">
+                <div class="icon sora"></div><span class="name">Sora AI</span>
+            </a>
+
+            <a href="?id=6448311069&name=ChatGPT&color=gpt" class="app-item">
+                <div class="icon gpt"></div><span class="name">ChatGPT</span>
+            </a>
+
+            <a href="?id=544007664&name=YouTube&color=yt" class="app-item">
+                <div class="icon yt"></div><span class="name">YouTube</span>
+            </a>
+
+            <a href="?id=6446901002&name=Threads&color=threads" class="app-item">
+                <div class="icon threads"></div><span class="name">Threads</span>
+            </a>
+
+            <a href="?id=389801252&name=Instagram&color=insta" class="app-item">
+                <div class="icon insta"></div><span class="name">Instagram</span>
+            </a>
+
+            <a href="?id=431946152&name=Roblox&color=roblox" class="app-item">
+                <div class="icon roblox"></div><span class="name">Roblox</span>
+            </a>
+
+            <a href="?id=1568294309&name=PJSK%20(TW)&color=pjsk" class="app-item">
+                <div class="icon pjsk"></div><span class="name">PJSK (TW)</span>
+            </a>
+
+            <a href="?id=1053012308&name=Clash%20Royale&color=clash" class="app-item">
+                <div class="icon clash"></div><span class="name">Clash Royale</span>
+            </a>
+
+            <a href="?id=1229016807&name=Brawl%20Stars&color=brawl" class="app-item">
+                <div class="icon brawl"></div><span class="name">Brawl Stars</span>
+            </a>
+        </div>
+    </div>
+
+    <div id="app-view">
+        <div id="page-icon" class="icon hero-icon"></div>
+        <h1 id="page-title">App Name</h1>
+        
+        <p class="instruction">
+            👆 <strong>Look Up!</strong><br>
+            If you are on iOS Safari, the <br>
+            <strong>Native Smart App Banner</strong><br>
+            is displayed at the top of the screen.
+        </p>
+
+        <a href="index.html" class="back-btn" onclick="clearUrl(event)">✕ Close</a>
+    </div>
+
+    <script>
+        // Logic to switch views based on URL
+        const params = new URLSearchParams(window.location.search);
+        const currentId = params.get('id');
+        const currentName = params.get('name');
+        const currentColor = params.get('color');
+
+        const gridView = document.getElementById('grid-view');
+        const appView = document.getElementById('app-view');
+        
+        // If we have an ID, show the App Page
+        if (currentId) {
+            appView.style.display = 'block';
+            
+            // Set visuals
+            document.getElementById('page-title').innerText = currentName;
+            document.getElementById('page-icon').classList.add(currentColor);
+        } 
+        // If no ID, show the Grid
+        else {
+            gridView.style.display = 'block';
+        }
+
+        // Helper to clear URL cleanly
+        function clearUrl(e) {
+            e.preventDefault();
+            window.location.href = window.location.pathname;
+        }
+    </script>
+</body>
+</html>
