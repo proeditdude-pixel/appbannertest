@@ -6,117 +6,151 @@
     <title>App Store</title>
 
     <script>
-        const urlParams = new URLSearchParams(window.location.search);
-        const appId = urlParams.get('id');
+        const apps = {
+            "sora": {
+                name: "Sora AI",
+                id: "6448311069", /* Placeholder (Not released yet) */
+                desc: "Create video from text. The official Sora app.",
+                color: "linear-gradient(135deg, #000, #333)"
+            },
+            "chatgpt": {
+                name: "ChatGPT",
+                id: "6448311069", /* REAL ID */
+                desc: "The official app by OpenAI. Chat about anything.",
+                color: "linear-gradient(135deg, #74aa9c, #10a37f)"
+            },
+            "youtube": {
+                name: "YouTube",
+                id: "544007664", /* REAL ID */
+                desc: "Watch, Stream, and Listen to your favorite creators.",
+                color: "linear-gradient(135deg, #f00, #c00)"
+            },
+            "threads": {
+                name: "Threads",
+                id: "6446901002", /* REAL ID */
+                desc: "Say more with Threads — Instagram's text-based app.",
+                color: "linear-gradient(135deg, #000, #222)"
+            },
+            "instagram": {
+                name: "Instagram",
+                id: "389801252", /* REAL ID */
+                desc: "Connect with friends, share photos and videos.",
+                color: "linear-gradient(45deg, #f09433, #dc2743, #bc1888)"
+            },
+            "roblox": {
+                name: "Roblox",
+                id: "431946152", /* REAL ID */
+                desc: "The ultimate virtual universe. Play with millions.",
+                color: "linear-gradient(135deg, #333, #999)"
+            },
+            "pjsk": {
+                name: "PJSK (TW)",
+                id: "1568294309", /* REAL ID */
+                desc: "Hatsune Miku: Colorful Stage! Rhythm game.",
+                color: "linear-gradient(135deg, #33ccbb, #00aa99)"
+            },
+            "clash": {
+                name: "Clash Royale",
+                id: "1053012308", /* REAL ID */
+                desc: "Real-time multiplayer battles starring the Royales.",
+                color: "linear-gradient(135deg, #2d63d8, #5a91ff)"
+            },
+            "brawl": {
+                name: "Brawl Stars",
+                id: "1229016807", /* REAL ID */
+                desc: "Fast-paced 3v3 battle royale made for mobile.",
+                color: "linear-gradient(135deg, #ffc400, #ff9100)"
+            }
+        };
 
-        if (appId) {
-            // This forces the meta tag into the code for Safari to see
-            document.write('<meta name="apple-itunes-app" content="app-id=' + appId + '">');
+        // 2. 🟢 BANNER INJECTOR (Run immediately)
+        // Checks the URL for ?app=chatgpt and adds the meta tag
+        const params = new URLSearchParams(window.location.search);
+        const currentKey = params.get('app');
+
+        if (currentKey && apps[currentKey]) {
+            const myApp = apps[currentKey];
+            // This line puts the banner in the browser header
+            document.write('<meta name="apple-itunes-app" content="app-id=' + myApp.id + '">');
         }
     </script>
 
     <style>
-        :root {
-            --bg-color: #000000;
-            --text-color: #ffffff;
-            --card-bg: #1c1c1e;
-        }
-
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", Helvetica, Arial, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
+            background-color: #f5f5f7;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
             margin: 0;
             padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
+            color: #1d1d1f;
         }
 
-        /* --- GRID VIEW STYLES --- */
+        /* GRID VIEW */
         #grid-view {
-            width: 100%;
-            max-width: 500px;
-            display: none; /* Hidden by default, shown via JS */
+            max-width: 600px;
+            margin: 0 auto;
         }
 
-        h1 { margin-bottom: 20px; text-align: center; }
+        h1 { text-align: center; margin-top: 20px; }
 
-        .grid {
+        .app-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
+            gap: 20px;
+            padding-top: 20px;
         }
 
-        .app-item {
+        .grid-item {
             display: flex;
             flex-direction: column;
             align-items: center;
             text-decoration: none;
-            color: white;
-            transition: opacity 0.2s;
+            color: #000;
         }
 
-        .app-item:active { opacity: 0.6; }
-
-        .icon {
-            width: 75px;
-            height: 75px;
-            border-radius: 16px;
-            background-size: cover;
-            background-position: center;
+        .icon-sq {
+            width: 80px;
+            height: 80px;
+            border-radius: 18px;
             margin-bottom: 8px;
-            border: 1px solid #333;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            background: #ccc; /* fallback */
         }
 
-        .name { font-size: 11px; text-align: center; font-weight: 500; }
+        .app-name { font-size: 12px; font-weight: 500; text-align: center; }
 
-        /* Icon Colors */
-        .sora { background: linear-gradient(135deg, #000, #444); }
-        .gpt { background: linear-gradient(135deg, #74AA9C, #10A37F); }
-        .yt { background: linear-gradient(135deg, #FF0000, #CC0000); }
-        .threads { background: linear-gradient(135deg, #000, #222); }
-        .insta { background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366); }
-        .roblox { background: linear-gradient(135deg, #333, #ccc); border-color: #fff; }
-        .pjsk { background: linear-gradient(135deg, #33CCBB, #00AA99); }
-        .clash { background: linear-gradient(135deg, #2D63D8, #5A91FF); }
-        .brawl { background: linear-gradient(135deg, #FFC400, #FF9100); }
-
-        /* --- APP PAGE VIEW STYLES --- */
-        #app-view {
-            display: none; /* Hidden by default */
-            text-align: center;
-            padding-top: 50px;
-            width: 100%;
+        /* DETAIL VIEW */
+        #detail-view {
+            display: none; /* Hidden unless an app is selected */
             max-width: 500px;
+            margin: 0 auto;
+            text-align: center;
+            padding-top: 40px;
         }
 
         .hero-icon {
             width: 120px;
             height: 120px;
-            border-radius: 26px;
+            border-radius: 24px;
             margin: 0 auto 20px auto;
-            border: 1px solid #333;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        }
+
+        .desc {
+            color: #86868b;
+            font-size: 15px;
+            line-height: 1.4;
+            max-width: 300px;
+            margin: 10px auto 30px auto;
         }
 
         .back-btn {
-            display: inline-block;
-            margin-top: 40px;
-            padding: 12px 30px;
-            background-color: #1c1c1e;
-            color: #0a84ff;
+            background: #0071e3;
+            color: white;
+            padding: 10px 24px;
+            border-radius: 20px;
             text-decoration: none;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 600;
-        }
-
-        .instruction {
-            color: #888;
             font-size: 14px;
-            margin-top: 10px;
-            line-height: 1.5;
+            font-weight: 600;
         }
     </style>
 </head>
@@ -124,87 +158,66 @@
 
     <div id="grid-view">
         <h1>My Apps</h1>
-        <div class="grid">
-            <a href="?id=6448311069&name=Sora%20AI&color=sora" class="app-item">
-                <div class="icon sora"></div><span class="name">Sora AI</span>
-            </a>
-
-            <a href="?id=6448311069&name=ChatGPT&color=gpt" class="app-item">
-                <div class="icon gpt"></div><span class="name">ChatGPT</span>
-            </a>
-
-            <a href="?id=544007664&name=YouTube&color=yt" class="app-item">
-                <div class="icon yt"></div><span class="name">YouTube</span>
-            </a>
-
-            <a href="?id=6446901002&name=Threads&color=threads" class="app-item">
-                <div class="icon threads"></div><span class="name">Threads</span>
-            </a>
-
-            <a href="?id=389801252&name=Instagram&color=insta" class="app-item">
-                <div class="icon insta"></div><span class="name">Instagram</span>
-            </a>
-
-            <a href="?id=431946152&name=Roblox&color=roblox" class="app-item">
-                <div class="icon roblox"></div><span class="name">Roblox</span>
-            </a>
-
-            <a href="?id=1568294309&name=PJSK%20(TW)&color=pjsk" class="app-item">
-                <div class="icon pjsk"></div><span class="name">PJSK (TW)</span>
-            </a>
-
-            <a href="?id=1053012308&name=Clash%20Royale&color=clash" class="app-item">
-                <div class="icon clash"></div><span class="name">Clash Royale</span>
-            </a>
-
-            <a href="?id=1229016807&name=Brawl%20Stars&color=brawl" class="app-item">
-                <div class="icon brawl"></div><span class="name">Brawl Stars</span>
-            </a>
-        </div>
+        <div class="app-grid" id="grid-container">
+            </div>
     </div>
 
-    <div id="app-view">
-        <div id="page-icon" class="icon hero-icon"></div>
-        <h1 id="page-title">App Name</h1>
+    <div id="detail-view">
+        <div id="d-icon" class="hero-icon"></div>
+        <h1 id="d-title">App Name</h1>
+        <p id="d-desc" class="desc">Description</p>
         
-        <p class="instruction">
-            👆 <strong>Look Up!</strong><br>
-            If you are on iOS Safari, the <br>
-            <strong>Native Smart App Banner</strong><br>
-            is displayed at the top of the screen.
-        </p>
+        <div style="background:#fff; padding:15px; border-radius:12px; margin-bottom:30px; font-size:13px; color:#555;">
+            👆 <strong>Check the top of Safari!</strong><br>
+            The Native Smart Banner is active for this app.
+        </div>
 
-        <a href="index.html" class="back-btn" onclick="clearUrl(event)">✕ Close</a>
+        <a href="index.html" class="back-btn" onclick="goHome(event)">Done</a>
     </div>
 
     <script>
-        // Logic to switch views based on URL
-        const params = new URLSearchParams(window.location.search);
-        const currentId = params.get('id');
-        const currentName = params.get('name');
-        const currentColor = params.get('color');
-
+        // 3. 🟢 RENDER THE PAGE
+        const gridContainer = document.getElementById('grid-container');
         const gridView = document.getElementById('grid-view');
-        const appView = document.getElementById('app-view');
-        
-        // If we have an ID, show the App Page
-        if (currentId) {
-            appView.style.display = 'block';
-            
-            // Set visuals
-            document.getElementById('page-title').innerText = currentName;
-            document.getElementById('page-icon').classList.add(currentColor);
-        } 
-        // If no ID, show the Grid
-        else {
-            gridView.style.display = 'block';
+        const detailView = document.getElementById('detail-view');
+
+        // Logic: specific app selected?
+        if (currentKey && apps[currentKey]) {
+            // SHOW DETAIL PAGE
+            const app = apps[currentKey];
+            gridView.style.display = 'none';
+            detailView.style.display = 'block';
+
+            // Fill content
+            document.getElementById('d-title').innerText = app.name;
+            document.getElementById('d-desc').innerText = app.desc;
+            document.getElementById('d-icon').style.background = app.color;
+
+        } else {
+            // SHOW GRID
+            // Loop through the "apps" object to build the grid
+            Object.keys(apps).forEach(key => {
+                const app = apps[key];
+                
+                const link = document.createElement('a');
+                link.className = 'grid-item';
+                // Link reloads page with ?app=key (e.g., ?app=chatgpt)
+                link.href = '?app=' + key; 
+                
+                link.innerHTML = `
+                    <div class="icon-sq" style="background: ${app.color}"></div>
+                    <div class="app-name">${app.name}</div>
+                `;
+                
+                gridContainer.appendChild(link);
+            });
         }
 
-        // Helper to clear URL cleanly
-        function clearUrl(e) {
+        function goHome(e) {
             e.preventDefault();
-            window.location.href = window.location.pathname;
+            window.location.href = window.location.pathname; // Clears the ?app=... param
         }
     </script>
+
 </body>
 </html>
