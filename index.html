@@ -1,45 +1,127 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-    <meta name="apple-itunes-app" content="app-id=1557595935">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    
-    <title>Good Morning</title>
+    <title>GOOD MORNING CHESTER</title>
     
     <style>
         body {
             margin: 0;
             padding: 0;
-            font-family: -apple-system, sans-serif;
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background: linear-gradient(45deg, #ff9a9e 0%, #fad0c4 99%, #fad0c4 100%);
+            height: 100vh;
+            overflow: hidden;
             display: flex;
-            flex-direction: column;
+            justify-content: center;
             align-items: center;
-            background-color: #f8f9fa;
         }
-        .container {
-            margin-top: 50px; /* Space for the banner */
+
+        /* Initial Splash Screen */
+        #splash {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+
+        /* Main Content - Hidden initially */
+        #main-content {
+            display: none;
             text-align: center;
             padding: 20px;
         }
-        h1 { color: #333; margin: 10px 0; }
-        img { 
-            max-width: 100%; 
-            border-radius: 15px; 
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+
+        h1 {
+            font-size: 3rem;
+            color: #ff0055;
+            text-shadow: 2px 2px #fff;
+            animation: shake 0.5s infinite;
+        }
+
+        @keyframes shake {
+            0% { transform: translate(1px, 1px) rotate(0deg); }
+            10% { transform: translate(-1px, -2px) rotate(-1deg); }
+            30% { transform: translate(3px, 2px) rotate(0deg); }
+            50% { transform: translate(-1px, 2px) rotate(1deg); }
+            100% { transform: translate(1px, -2px) rotate(-1deg); }
+        }
+
+        #troll-image {
+            max-width: 80%;
+            border: 10px dashed #fff;
+            border-radius: 50px;
+            transition: transform 0.1s ease-in-out;
+            cursor: pointer;
+        }
+
+        .start-btn {
+            padding: 20px 40px;
+            font-size: 24px;
+            background: #ff0055;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
         }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <h1>Good Morning Chester</h1>
-        <h1>我的查斯特 早上好</h1>
-        
-        <a href="https://ibb.co/84D6NM5M">
-            <img src="https://i.ibb.co/zHhGQsRs/IMG-7441.jpg" alt="Morning Image">
-        </a>
+    <div id="splash">
+        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSMEjApfWKxrtZWsZnGc1vRU7hO2gjmp_qz9_8lCi8UMw&s" alt="Wait for it...">
     </div>
 
+    <div id="trigger-screen" style="display:none; text-align:center;">
+        <button class="start-btn" onclick="startTroll()">Wake Up Chester!</button>
+    </div>
+
+    <div id="main-content">
+        <h1>WAKE UP CHESTER!</h1>
+        <h1>我的查斯特 早上好</h1>
+        
+        <img id="troll-image" src="https://i.ibb.co/zHhGQsRs/IMG-7441.jpg" alt="Morning Image">
+        
+        <audio id="bg-audio" loop>
+            <source src="https://quicksounds.com/uploads/tracks/1361413340_271665325_187009232.mp3" type="audio/mpeg">
+        </audio>
+    </div>
+
+    <script>
+        // Splash screen timer
+        setTimeout(() => {
+            document.getElementById('splash').style.display = 'none';
+            document.getElementById('trigger-screen').style.display = 'block';
+        }, 1000);
+
+        function startTroll() {
+            document.getElementById('trigger-screen').style.display = 'none';
+            document.getElementById('main-content').style.display = 'block';
+            
+            const audio = document.getElementById('bg-audio');
+            audio.play();
+
+            // The "Troll" movement effect
+            document.addEventListener('mousemove', chaosEffect);
+            document.addEventListener('touchmove', chaosEffect);
+        }
+
+        function chaosEffect() {
+            const img = document.getElementById('troll-image');
+            const randomRot = Math.random() * 360;
+            const randomScale = 0.5 + Math.random();
+            
+            img.style.transform = `rotate(${randomRot}deg) scale(${randomScale})`;
+            
+            // Randomly change background color for extra headache
+            document.body.style.backgroundColor = `hsl(${Math.random() * 360}, 70%, 80%)`;
+        }
+    </script>
 </body>
 </html>
