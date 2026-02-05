@@ -1,127 +1,158 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
+    <meta name="apple-itunes-app" content="app-id=1557595935">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>GOOD MORNING CHESTER</title>
+    <title>Good Morning Chester</title>
     
     <style>
         body {
             margin: 0;
             padding: 0;
-            font-family: 'Comic Sans MS', cursive, sans-serif;
-            background: linear-gradient(45deg, #ff9a9e 0%, #fad0c4 99%, #fad0c4 100%);
-            height: 100vh;
+            background-color: #ff0000; /* Intense Red */
+            color: white;
+            font-family: 'Impact', sans-serif;
             overflow: hidden;
             display: flex;
             justify-content: center;
             align-items: center;
+            height: 100vh;
         }
 
-        /* Initial Splash Screen */
-        #splash {
+        /* Initial 1s Splash */
+        #first-scare {
             position: fixed;
             top: 0; left: 0;
             width: 100%; height: 100%;
             background: white;
+            z-index: 999;
             display: flex;
             justify-content: center;
             align-items: center;
-            z-index: 100;
         }
 
-        /* Main Content - Hidden initially */
-        #main-content {
+        /* Overlay for Browser Autoplay Bypass */
+        #overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 888;
             display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
             text-align: center;
-            padding: 20px;
+            display: none;
         }
 
         h1 {
-            font-size: 3rem;
-            color: #ff0055;
-            text-shadow: 2px 2px #fff;
-            animation: shake 0.5s infinite;
+            font-size: 4rem;
+            text-transform: uppercase;
+            margin: 10px;
+            text-shadow: 5px 5px #000;
         }
 
-        @keyframes shake {
-            0% { transform: translate(1px, 1px) rotate(0deg); }
-            10% { transform: translate(-1px, -2px) rotate(-1deg); }
-            30% { transform: translate(3px, 2px) rotate(0deg); }
-            50% { transform: translate(-1px, 2px) rotate(1deg); }
-            100% { transform: translate(1px, -2px) rotate(-1deg); }
+        /* The moving jumpscare images */
+        .scare-img {
+            position: absolute;
+            width: 250px;
+            pointer-events: none;
+            display: none;
+            z-index: 10;
         }
 
-        #troll-image {
+        #main-img {
             max-width: 80%;
-            border: 10px dashed #fff;
-            border-radius: 50px;
-            transition: transform 0.1s ease-in-out;
-            cursor: pointer;
+            border: 10px solid black;
+            transition: 0.1s;
         }
 
-        .start-btn {
-            padding: 20px 40px;
-            font-size: 24px;
-            background: #ff0055;
+        .btn-start {
+            padding: 20px 50px;
+            font-size: 30px;
+            background: red;
             color: white;
-            border: none;
-            border-radius: 50px;
+            border: 5px solid white;
             cursor: pointer;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
         }
     </style>
 </head>
 <body>
 
-    <div id="splash">
-        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSMEjApfWKxrtZWsZnGc1vRU7hO2gjmp_qz9_8lCi8UMw&s" alt="Wait for it...">
+    <div id="first-scare">
+        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSMEjApfWKxrtZWsZnGc1vRU7hO2gjmp_qz9_8lCi8UMw&s" width="100%">
     </div>
 
-    <div id="trigger-screen" style="display:none; text-align:center;">
-        <button class="start-btn" onclick="startTroll()">Wake Up Chester!</button>
+    <div id="overlay">
+        <button class="btn-start" onclick="initChaos()">GOOD MORNING CHESTER</button>
     </div>
 
-    <div id="main-content">
-        <h1>WAKE UP CHESTER!</h1>
+    <div id="main-content" class="container">
+        <h1>GOOD MORNING CHESTER</h1>
         <h1>我的查斯特 早上好</h1>
-        
-        <img id="troll-image" src="https://i.ibb.co/zHhGQsRs/IMG-7441.jpg" alt="Morning Image">
-        
-        <audio id="bg-audio" loop>
-            <source src="https://quicksounds.com/uploads/tracks/1361413340_271665325_187009232.mp3" type="audio/mpeg">
-        </audio>
+        <img id="main-img" src="https://i.ibb.co/zHhGQsRs/IMG-7441.jpg" alt="Morning Image">
     </div>
+
+    <img class="scare-img" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTYIyNahZExmCQmt_YI7V-qYWyBMfE1D5uy859dXJl1jQ&s=10">
+    <img class="scare-img" src="https://media.tenor.com/2PY3SDpVro8AAAAe/lebron-james-1-percent.png">
+    <img class="scare-img" src="https://preview.redd.it/pi38ojxhy3801.png?auto=webp&s=9da1f554e316d41251505a76412e5b2d92aec33d">
+    <img class="scare-img" src="https://media.tenor.com/tERiuqTAHlAAAAAm/spongebob-spongebob-meme.webp">
+
+    <audio id="audio" loop>
+        <source src="https://quicksounds.com/uploads/tracks/1361413340_271665325_187009232.mp3" type="audio/mpeg">
+    </audio>
 
     <script>
-        // Splash screen timer
+        const splash = document.getElementById('first-scare');
+        const overlay = document.getElementById('overlay');
+        const main = document.getElementById('main-content');
+        const audio = document.getElementById('audio');
+        const scares = document.querySelectorAll('.scare-img');
+
+        // 1. Show first image for 1 sec, then show overlay button
         setTimeout(() => {
-            document.getElementById('splash').style.display = 'none';
-            document.getElementById('trigger-screen').style.display = 'block';
+            splash.style.display = 'none';
+            overlay.style.display = 'flex';
         }, 1000);
 
-        function startTroll() {
-            document.getElementById('trigger-screen').style.display = 'none';
-            document.getElementById('main-content').style.display = 'block';
-            
-            const audio = document.getElementById('bg-audio');
+        function initChaos() {
+            overlay.style.display = 'none';
+            main.style.display = 'block';
             audio.play();
 
-            // The "Troll" movement effect
-            document.addEventListener('mousemove', chaosEffect);
-            document.addEventListener('touchmove', chaosEffect);
+            // Start the jumpscare loop
+            setInterval(showRandomScare, 800);
+
+            // Screen movement effect
+            document.addEventListener('mousemove', (e) => {
+                document.getElementById('main-img').style.transform = 
+                    `rotate(${Math.random() * 20 - 10}deg) scale(${1 + Math.random() * 0.2})`;
+                
+                // Random flash colors
+                if(Math.random() > 0.8) {
+                    document.body.style.backgroundColor = 'black';
+                } else {
+                    document.body.style.backgroundColor = 'red';
+                }
+            });
         }
 
-        function chaosEffect() {
-            const img = document.getElementById('troll-image');
-            const randomRot = Math.random() * 360;
-            const randomScale = 0.5 + Math.random();
+        function showRandomScare() {
+            const index = Math.floor(Math.random() * scares.length);
+            const img = scares[index];
             
-            img.style.transform = `rotate(${randomRot}deg) scale(${randomScale})`;
+            img.style.left = Math.random() * (window.innerWidth - 200) + 'px';
+            img.style.top = Math.random() * (window.innerHeight - 200) + 'px';
+            img.style.display = 'block';
             
-            // Randomly change background color for extra headache
-            document.body.style.backgroundColor = `hsl(${Math.random() * 360}, 70%, 80%)`;
+            setTimeout(() => { img.style.display = 'none'; }, 500);
         }
     </script>
+
 </body>
 </html>
